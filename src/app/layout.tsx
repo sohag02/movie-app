@@ -8,6 +8,8 @@ import {
   UserButton,
 } from "@clerk/nextjs";
 
+import { Navbar } from "@/components/navbar";
+
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 
@@ -24,14 +26,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" className={`${GeistSans.variable}`}>
         <body className="dark">
-          <header>
-            <SignedOut>
-              <SignInButton />
-            </SignedOut>
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
-          </header>
+          <Navbar />
           {children}
         </body>
       </html>
