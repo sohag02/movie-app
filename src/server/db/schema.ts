@@ -4,7 +4,8 @@ export const Movies = pgTable('movies', {
   id: serial('id').primaryKey(),
   watchlist_id: integer('watchlist_id').notNull(),
   movie_id: integer('movie_id').notNull(),
-  status: text('status').notNull(),
+  user_id: text('user_id').notNull(),
+  status: text('status').notNull().default('watched'),
   added_at: timestamp('added_at').notNull().defaultNow(),
 })
 
