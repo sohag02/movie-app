@@ -4,14 +4,6 @@ const API_KEY = process.env.TMDB_API_KEY;
 
 const url = `https://api.themoviedb.org/3/search/movie?include_adult=false&language=en-US&page=1&api_key=${API_KEY}&query=`;
 
-const options = {
-  method: "GET",
-  headers: {
-    accept: "application/json",
-    Authorization: `Bearer ${API_KEY}`,
-  },
-};
-
 export const searchMovie = async (query: string): Promise<SearchResponse> => {
   const res = await fetch(url + query);
   const data = (await res.json()) as SearchResponse;

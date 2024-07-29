@@ -3,7 +3,7 @@ import { getMovie } from "@/lib/tmdb";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const id = searchParams.get("id");
+  const id = searchParams.get("id"); // eg: /api/movie?id=123
   if (!id) {
     return NextResponse.json({
       error: "No movie ID provided",
