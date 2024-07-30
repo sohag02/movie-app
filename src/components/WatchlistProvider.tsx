@@ -1,7 +1,7 @@
 'use client';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from "@clerk/nextjs";
-import { type Watchlist, type WatchlistMovie } from "@/lib/interfaces";
+import { type Watchlist, type WatchlistMovie, type WatchlistResponse } from "@/lib/interfaces";
 
 interface WatchlistContextType {
   watchlist: WatchlistMovie[];
@@ -34,6 +34,8 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         'Content-Type': 'application/json',
       },
     });
+    const data = await res.json() as WatchlistResponse;
+    if (data.success) {
     const movie: WatchlistMovie = {
       id: movieID,
       watchlist_id: null,
@@ -43,17 +45,17 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       added_at: new Date(),
     }
     setWatchlist((prevWatchlist) => [...prevWatchlist, movie]);
+    } else {
+      console.error(data.message);
+    }
   };
 
   const removeFromWatchlist = async (movieId: number) => {
-    const res = await fetch(`/api/watchlist`, {
+    const res = await fetch(`/api/watchlist?movie_id=${movieId}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        movie_id: movieId,
-      }),
     });
     setWatchlist((prevWatchlist) => prevWatchlist.filter((movie) => movie.id !== movieId));
   };

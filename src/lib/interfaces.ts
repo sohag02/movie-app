@@ -104,3 +104,8 @@ export interface WatchlistMovie {
     status:       string;
     added_at:     Date;
 }
+
+export interface WatchlistResponse {
+    success: boolean;
+    message: string;
+}
