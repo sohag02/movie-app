@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { SearchBar } from "./searchBar";
+import SearchBar from "./searchBar";
 import { CameraIcon } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";

@@ -1,57 +1,156 @@
 "use client";
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { Suspense } from "react";
 
-export function SearchBar() {
-  const [isInputVisible, setIsInputVisible] = useState(false);
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import { MediaType, type Movie, type SearchResponse } from "@/lib/interfaces";
+import { BookmarkCheck, Search, X } from "lucide-react";
+import { Bookmark } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import Link from "next/link";
+import { Input } from "./ui/input";
+import { type Watchlist, type WatchlistMovie } from "@/lib/interfaces";
+import { useWatchlist } from "@/components/WatchlistProvider";
 
-  const handleButtonClick = () => {
-    setIsInputVisible(!isInputVisible); // Toggle input visibility
+const SearchBar = () => {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<Movie[]>([]);
+  const [isSearchVisible, setIsSearchVisible] = useState(true);
+  const [isFocused, setIsFocused] = useState(false);
+  const { watchlist, setWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
+
+  const isInWatchlist = (movieId: number) => {
+    return watchlist.some((movie: WatchlistMovie) => movie.movie_id === movieId);
   };
-  const router = useRouter();
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const inputElement = document.getElementById("search-input") as HTMLInputElement;
-    if (!inputElement) return;
-    const searchTerm = inputElement.value;
-    if (!searchTerm) {
-      setIsInputVisible(false); // Close input visibility
-      return;
+
+  const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setQuery(query);
+
+    if (query.length > 2) {
+      const res = await fetch(`/api/search?query=${query}`);
+      const data = (await res.json()) as SearchResponse;
+      const medias: Movie[] = (data.results ?? []).filter((movie) => movie.media_type !== MediaType.Person);
+      if (!medias || medias.length === 0) {
+        setResults([]);
+        return;
+      };
+      setResults(medias.slice(0, 5) ?? []);
+    } else {
+      setResults([]);
     }
-    router.push(`/search?q=${searchTerm}`);
-    setIsInputVisible(false); // Close input visibility
   };
+
+  const toggleSearchBar = () => {
+    setIsSearchVisible(!isSearchVisible);
+  };
+
+  const handleFocus = () => {
+    setIsFocused(true);
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+  };
+
+  const getDetailsLink = (mediaType: Movie["media_type"], id: number) => {
+    if (mediaType === MediaType.Movie) {
+      return `/movie/${id}`;
+    } else if (mediaType === MediaType.TV) {
+      return `/tv/${id}`;
+    } else {
+      return `/`;
+    }
+  };
+
   return (
-    // <div className="my-2 flex w-full max-w-xs flex-col items-center space-y-2 sm:max-w-sm sm:flex-row sm:space-x-2 sm:space-y-0 md:max-w-lg lg:max-w-xl xl:max-w-2xl">
-    <form
-      onSubmit={handleSubmit}
-      className="flex w-full max-w-xs flex-col items-center space-y-2 sm:w-auto sm:flex-row sm:items-center sm:justify-end"
-    >
-      {!isInputVisible && (
-        <button onClick={handleButtonClick} className="mt-2 md:block">
-          <Search className="h-[1.2rem] w-[1.2rem]" />{" "}
-          <p className="hidden md:block">Search</p>
-        </button>
-      )}
-      {isInputVisible && (
-        <>
-          <Suspense fallback={<div>Loading...</div>}>
-            <Input
-              id="search-input"
-              type="text"
-              placeholder="Search.."
-              className="absolute inset-0"
-            />
-          </Suspense>
-          <button type="submit" className="ml-2 flex flex-row">
-            <Search className="h-[1.2rem] w-[1.2rem]" />{" "}
-            <p className="hidden md:block">Search</p>
+    <div className="relative mx-auto w-full max-w-md">
+      <div className="flex items-center">
+        {!isSearchVisible && (
+          <button
+            onClick={toggleSearchBar}
+            className="p-2 text-gray-500 hover:text-gray-700 md:hidden"
+          >
+            <Search className="h-6 w-6" />
           </button>
-        </>
-      )}
-    </form>
+        )}
+        {isSearchVisible && (
+          <div className="flex w-full items-center">
+            <Input
+              type="text"
+              value={query}
+              onChange={handleInputChange}
+              onFocus={handleFocus}
+              // onBlur={handleBlur}
+              className="w-full rounded-md border border-gray-300 px-4 py-2"
+              placeholder="Search for a movie..."
+            />
+            <button
+              onClick={toggleSearchBar}
+              className="p-2 text-gray-500 hover:text-gray-700 md:hidden"
+            >
+              <X className="h-6 w-6" />
+            </button>
+          </div>
+        )}
+      </div>
+      {isFocused && results.length > 0 && <SearchResult />}
+    </div>
   );
-}
+
+  function SearchResult() {
+    return (
+      <ul className="absolute z-10 mt-1 max-h-60 w-full overflow-y-auto rounded-md border border-gray-300">
+        {results.map((movie) => (
+          <Card
+            key={movie.id}
+            className="relative flex flex-row border-b border-gray-200 p-2 last:border-none"
+          >
+            <Link
+              href={getDetailsLink(movie.media_type, movie.id)}
+              className="flex flex-grow"
+              passHref
+            >
+              <Image
+                src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
+                alt={movie.title ?? "No Title"}
+                width={50}
+                height={75}
+                className="rounded-sm"
+              />
+              <div className="ml-3">
+                <p className="font-semibold">{movie.title}</p>
+                <p className="text-gray-500">
+                  {new Date(
+                    movie.release_date ?? "2000-01-01",
+                  ).toLocaleDateString()}
+                </p>
+                <p className="text-gray-500">
+                  {movie.vote_average?.toFixed(1)}
+                </p>
+              </div>
+            </Link>
+            {isInWatchlist(movie.id ?? 0) ? (
+              <BookmarkCheck className="absolute right-2 top-2 rounded-full bg-gray-200 p-1 hover:bg-gray-300" />
+            ) : (
+              <button
+                onClick={(e) => {
+                  console.log("Clicked");
+                  e.stopPropagation();
+                  addToWatchlist(movie.id).catch((err) => {
+                    console.error(err);
+                    console.log("Something went wrong in catch");
+                  });
+                }}
+                className="absolute right-2 top-2 rounded-full bg-gray-200 p-1 text-gray-500 hover:bg-gray-300"
+              >
+                <Bookmark className="h-4 w-4" />
+              </button>
+            )}
+          </Card>
+        ))}
+      </ul>
+    );
+  }
+};
+
+export default SearchBar;
