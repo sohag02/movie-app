@@ -1,12 +1,8 @@
 import "@/styles/globals.css";
 
-import {
-  ClerkProvider,
-  SignInButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from "@clerk/nextjs";
+import { ClerkProvider } from "@clerk/nextjs";
+
+import { WatchlistProvider } from "@/components/WatchlistProvider";
 
 import { Navbar } from "@/components/navbar";
 
@@ -25,10 +21,12 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en" className={`${GeistSans.variable}`}>
-        <body className="dark">
-          <Navbar />
-          {children}
-        </body>
+        <WatchlistProvider>
+          <body className="dark">
+            <Navbar />
+            {children}
+          </body>
+        </WatchlistProvider>
       </html>
     </ClerkProvider>
   );
