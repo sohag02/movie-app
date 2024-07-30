@@ -2,7 +2,7 @@ import { integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
 
 export const Movies = pgTable('movies', {
   id: serial('id').primaryKey(),
-  watchlist_id: integer('watchlist_id').notNull(),
+  watchlist_id: integer('watchlist_id'),
   movie_id: integer('movie_id').notNull(),
   user_id: text('user_id').notNull(),
   status: text('status').notNull().default('watched'),

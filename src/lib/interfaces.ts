@@ -81,3 +81,15 @@ export interface SpokenLanguage {
     name?:         string;
 }
 
+export interface Watchlist {
+    watchlist: WatchlistMovie[];
+}
+
+export interface WatchlistMovie {
+    id:           number;
+    watchlist_id: number | null;
+    movie_id:     number;
+    user_id:      string;
+    status:       string;
+    added_at:     Date;
+}
