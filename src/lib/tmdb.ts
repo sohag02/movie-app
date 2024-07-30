@@ -2,7 +2,7 @@ import { type MovieDetails, type SearchResponse } from "./interfaces";
 
 const API_KEY = process.env.TMDB_API_KEY;
 
-const url = `https://api.themoviedb.org/3/search/movie?include_adult=false&language=en-US&page=1&api_key=${API_KEY}&query=`;
+const url = `https://api.themoviedb.org/3/search/multi?include_adult=false&language=en-US&page=1&api_key=${API_KEY}&query=`;
 
 export const searchMovie = async (query: string): Promise<SearchResponse> => {
   const res = await fetch(url + query);
