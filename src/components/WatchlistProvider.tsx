@@ -8,6 +8,7 @@ interface WatchlistContextType {
   setWatchlist: React.Dispatch<React.SetStateAction<WatchlistMovie[]>>;
   addToWatchlist: (movieID: number) => Promise<void>;
   removeFromWatchlist: (movieId: number) => Promise<void>;
+  isInWatchlist: (movieId: number) => boolean;
 }
 
 const WatchlistContext = createContext<WatchlistContextType | undefined>(undefined);
@@ -57,8 +58,12 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setWatchlist((prevWatchlist) => prevWatchlist.filter((movie) => movie.id !== movieId));
   };
 
+  const isInWatchlist = (movieId: number) => {
+    return watchlist.some((movie) => movie.movie_id === movieId);
+  };
+
   return (
-    <WatchlistContext.Provider value={{ watchlist, setWatchlist, addToWatchlist, removeFromWatchlist }}>
+    <WatchlistContext.Provider value={{ watchlist, setWatchlist, addToWatchlist, removeFromWatchlist, isInWatchlist }}>
       {children}
     </WatchlistContext.Provider>
   );

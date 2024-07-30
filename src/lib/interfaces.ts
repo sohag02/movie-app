@@ -30,6 +30,7 @@ export interface Movie {
 export enum MediaType {
     Movie = "movie",
     TV = "tv",
+    Person = "person",
 }
 
 export interface MovieDetails {

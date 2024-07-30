@@ -1,6 +1,5 @@
 "use client";
-
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { MediaType, type Movie, type SearchResponse } from "@/lib/interfaces";
 import { BookmarkCheck, Search, X } from "lucide-react";
@@ -8,7 +7,6 @@ import { Bookmark } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { Input } from "./ui/input";
-import { type Watchlist, type WatchlistMovie } from "@/lib/interfaces";
 import { useWatchlist } from "@/components/WatchlistProvider";
 
 const SearchBar = () => {
@@ -16,11 +14,7 @@ const SearchBar = () => {
   const [results, setResults] = useState<Movie[]>([]);
   const [isSearchVisible, setIsSearchVisible] = useState(true);
   const [isFocused, setIsFocused] = useState(false);
-  const { watchlist, setWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
-
-  const isInWatchlist = (movieId: number) => {
-    return watchlist.some((movie: WatchlistMovie) => movie.movie_id === movieId);
-  };
+  const { isInWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
 
   const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
