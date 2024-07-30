@@ -15,7 +15,8 @@ export default function HomePage() {
       // Fetch and enhance the movies
       const enhancedMovies = await Promise.all(
         watchlist.map(async (movie) => {
-          const fetchedMovie = await getMovie(movie.movie_id);
+          const res = await fetch(`/api/movie?id=${movie.movie_id}`);
+          const fetchedMovie = (await res.json()) as MovieDetails;
           console.log(fetchedMovie.title);
           return fetchedMovie;
         })
