@@ -86,7 +86,7 @@ export default function MoviePage({ params }: { params: { id: string } }) {
               )}
               <p className="flex text-xl">
                 <Image
-                  src={"/IMDB_logo.png"}
+                  src={"/IMDB_Logo.png"}
                   alt={"IMDB logo"}
                   width={50}
                   height={50}
