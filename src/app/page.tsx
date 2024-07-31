@@ -28,7 +28,7 @@ export default function HomePage() {
 
   return (
     <div className="">
-      <div className="mx-1 gap-1 grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+      <div className="mx-1 mb-24 gap-1 grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         {movies.map((movie) => (
           <Link href={`/movie/${movie.id}`} key={movie.id} className="inline-block h-auto w-auto">
             <MovieCard

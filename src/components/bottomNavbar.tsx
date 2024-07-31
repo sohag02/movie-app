@@ -26,7 +26,7 @@ const MobileNavbar = () => {
   );
 
   return (
-    <div className="fixed mb-2 bottom-0 bg-black left-0 right-0 shadow-lg p-4 md:hidden flex justify-between items-center">
+    <div className="fixed h-20 bottom-0 bg-black left-0 right-0 shadow-lg p-4 md:hidden flex justify-between items-center">
       <button onClick={() => handleButtonClick('/')} className={getButtonClass('/')}>
         <Bookmark className="w-6 h-6" />
       </button>

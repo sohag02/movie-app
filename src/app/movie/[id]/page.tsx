@@ -34,13 +34,16 @@ export default function MoviePage({ params }: { params: { id: string } }) {
     <div>
       {movie ? (
         <div className="relative">
-          <Image
-            src={getImage(movie.backdrop_path ?? "", "original")}
-            alt={movie.title ?? ""}
-            width={800}
-            height={1200}
-            className="h-full w-full object-cover"
-          />
+          <div className="relative h-full w-full">
+            <Image
+              src={getImage(movie.backdrop_path ?? "", "original")}
+              alt={movie.title ?? ""}
+              width={800}
+              height={1200}
+              className="h-full w-full object-cover"
+            />
+            <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-black to-transparent"></div>
+          </div>
           <div className="absolute inset-0 flex flex-col items-start justify-items-start gap-5 bg-black bg-opacity-50 p-5 md:flex-row">
             <Image
               src={getImage(movie.poster_path ?? "")}
@@ -87,7 +90,7 @@ export default function MoviePage({ params }: { params: { id: string } }) {
                   alt={"IMDB logo"}
                   width={50}
                   height={50}
-                  className="h-auto w-auto mr-2"
+                  className="mr-2 h-auto w-auto"
                 />{" "}
                 {Math.round(movie.vote_average ?? 0)}/10
               </p>
