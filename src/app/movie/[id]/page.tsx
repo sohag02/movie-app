@@ -4,10 +4,15 @@ import { type MovieDetails } from "@/lib/interfaces";
 import Image from "next/image";
 import { getImage } from "@/lib/tmdb";
 import { formatDuration } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Plus, Check } from "lucide-react";
+import { useWatchlist } from "@/components/WatchlistProvider";
 
 export default function MoviePage({ params }: { params: { id: string } }) {
   const id = params.id;
   const [movie, setMovie] = useState<MovieDetails | null>(null);
+  const { isInWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
 
   useEffect(() => {
     // Define an async function inside useEffect to handle the fetch
@@ -36,31 +41,57 @@ export default function MoviePage({ params }: { params: { id: string } }) {
             height={1200}
             className="h-full w-full object-cover"
           />
-          <div className="p-5 absolute inset-0 flex flex-col md:flex-row gap-5 items-start justify-items-start bg-black bg-opacity-50">
+          <div className="absolute inset-0 flex flex-col items-start justify-items-start gap-5 bg-black bg-opacity-50 p-5 md:flex-row">
             <Image
               src={getImage(movie.poster_path ?? "")}
               alt={movie.title ?? ""}
               width={300}
               height={450}
-              className="rounded-lg w-full sm:w-3/4 md:w-1/2 lg:w-1/3 xl:w-1/4 h-auto"
-              layout="responsive"
+              className="h-auto w-1/2 rounded-lg sm:w-3/4 md:w-1/2 lg:w-1/3 xl:w-1/4"
+              // layout="responsive"
             />
             <div>
               <p className="mt-4 text-3xl font-bold text-white">
-                {movie.title} {movie.release_date?.substring(0, 4)}
+                {movie.title}
               </p>
-              <div className="flex flex-row flex-wrap justify-center gap-2 mt-4">
+              <p></p>
+              <p className="text-sm font-semibold text-gray-300">
+                {movie.release_date?.substring(0, 4)} &bull;{" "}
+                {formatDuration(movie.runtime ?? 0)}
+              </p>
+              <div className="mt-4 flex flex-row flex-wrap justify-start gap-2">
                 {movie.genres?.map((genre, index) => (
                   <p key={index} className="text-sm font-semibold text-white">
-                    {genre.name},
+                    <Badge variant={"outline"}>{genre.name}</Badge>
                   </p>
-                ))} &bull;
-                <p className="text-sm font-semibold text-white">
-                  {formatDuration(movie.runtime??0)}
-                </p>
+                ))}{" "}
               </div>
-                <p className="text-xl">{Math.round(movie.vote_average??0)}/10</p>
-                <p>{movie.overview}</p>
+              {isInWatchlist(movie.id ?? 0) ? (
+                <Button
+                  className="my-4 w-full cursor-pointer text-xl md:w-1/4 lg:w-1/2 xl:w-1/3"
+                  onClick={() => removeFromWatchlist(movie.id ?? 0)}
+                >
+                  <Check className="mx-2 h-5 w-5" /> In Watchlist
+                </Button>
+              ) : (
+                <Button
+                  className="my-4 w-full cursor-pointer text-xl md:w-1/4 lg:w-1/2 xl:w-1/3"
+                  onClick={() => addToWatchlist(movie.id ?? 0)}
+                >
+                  <Plus className="mx-2 h-5 w-5" /> Add To Watchlist
+                </Button>
+              )}
+              <p className="flex text-xl">
+                <Image
+                  src={"/IMDB_logo.png"}
+                  alt={"IMDB logo"}
+                  width={50}
+                  height={50}
+                  className="h-auto w-auto mr-2"
+                />{" "}
+                {Math.round(movie.vote_average ?? 0)}/10
+              </p>
+              <p>{movie.overview}</p>
             </div>
           </div>
         </div>
