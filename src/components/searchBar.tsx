@@ -41,12 +41,15 @@ const SearchBar = () => {
   };
 
   const handleFocus = () => {
-    setIsFocused(true);
+    setIsFocused(true);    
   };
 
-  // const handleBlur = () => {
-  //   setIsFocused(false);
-  // };
+  const handleBlur = () => {
+    setIsFocused(false);
+    setQuery("");
+    setResults([]);
+    setIsSearchVisible(!isSearchVisible);
+  };
 
   const getDetailsLink = (mediaType: Movie["media_type"], id: number) => {
     if (mediaType === MediaType.Movie) {
@@ -59,43 +62,56 @@ const SearchBar = () => {
   };
 
   return (
-    <div className="absolute inset-0 mx-auto w-full max-w-md">
+    <div className="mx-auto w-full max-w-md">
       <div className="flex items-center">
         {!isSearchVisible && (
           <button
             onClick={toggleSearchBar}
-            className="p-2 text-gray-500 hover:text-gray-700 md:hidden"
+            className="p-2 text-gray-500 hover:text-gray-700"
           >
             <Search className="h-6 w-6" />
           </button>
         )}
         {isSearchVisible && (
-          <div className="flex w-full items-center">
-            <Input
-              type="text"
-              value={query}
-              onChange={handleInputChange}
-              onFocus={handleFocus}
-              // onBlur={handleBlur}
-              className="w-full rounded-md border border-gray-300 px-4 py-2"
-              placeholder="Search for a movie..."
-            />
-            <button
-              onClick={toggleSearchBar}
-              className="p-2 text-gray-500 hover:text-gray-700 md:hidden"
-            >
-              <X className="h-6 w-6" />
-            </button>
+          <div className="absolute inset-0">
+            <div className="flex w-full items-cente justify-centerr">
+              <Input
+                type="text"
+                value={query}
+                onChange={handleInputChange}
+                onFocus={handleFocus}
+                onBlur={() => {
+                  handleBlur();
+                }}
+                className="w-full md:w-1/2 rounded-md border border-gray-300 px-4 py-2"
+                placeholder="Search for a movie..."
+              />
+              <button
+                onClick={toggleSearchBar}
+                className="p-2 text-gray-500 hover:text-gray-700 md:hidden"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            {isFocused && results.length > 0 ? (
+              <div className="">
+                <SearchResult />
+              </div>
+            ) : ('')}
           </div>
         )}
+      {/* {isFocused && results.length > 0 ? (
+        <div className="absolute inset-0">
+          <SearchResult />
+        </div>
+      ) : ('')} */}
       </div>
-      {isFocused && results.length > 0 && <SearchResult />}
     </div>
   );
 
   function SearchResult() {
     return (
-      <ul className="absolute z-10 mt-1 max-h-60 w-full overflow-y-auto rounded-md border border-gray-300">
+      <ul className="absolute z-10 mt-1 max-h-auto w-full md:w-1/2 overflow-y-auto rounded-md border border-gray-300">
         {results.map((movie) => (
           <Card
             key={movie.id}

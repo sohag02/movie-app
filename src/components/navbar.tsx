@@ -16,17 +16,19 @@ export const Navbar = () => {
           <h1 className="px-2 text-2xl font-semibold">Movies</h1>
         </div>
       </Link>
+      <div className="flex flex-row items-center justify-between">
+        <SearchBar />
 
-      <SearchBar />
+        <SignedOut>
+          <SignInButton>
+            <Button>Sign In</Button>
+          </SignInButton>
+        </SignedOut>
 
-      <SignedOut>
-        <SignInButton>
-          <Button>Sign In</Button>
-        </SignInButton>
-      </SignedOut>
-      <SignedIn>
-        <UserButton />
-      </SignedIn>
+        <SignedIn>
+          <UserButton />
+        </SignedIn>
+      </div>
     </div>
   );
 };
