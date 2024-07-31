@@ -44,9 +44,9 @@ const SearchBar = () => {
     setIsFocused(true);
   };
 
-  const handleBlur = () => {
-    setIsFocused(false);
-  };
+  // const handleBlur = () => {
+  //   setIsFocused(false);
+  // };
 
   const getDetailsLink = (mediaType: Movie["media_type"], id: number) => {
     if (mediaType === MediaType.Movie) {
