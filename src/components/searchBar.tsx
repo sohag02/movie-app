@@ -12,7 +12,7 @@ import { useWatchlist } from "@/components/WatchlistProvider";
 const SearchBar = () => {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Movie[]>([]);
-  const [isSearchVisible, setIsSearchVisible] = useState(true);
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const { isInWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
 
@@ -23,11 +23,13 @@ const SearchBar = () => {
     if (query.length > 2) {
       const res = await fetch(`/api/search?query=${query}`);
       const data = (await res.json()) as SearchResponse;
-      const medias: Movie[] = (data.results ?? []).filter((movie) => movie.media_type !== MediaType.Person);
+      const medias: Movie[] = (data.results ?? []).filter(
+        (movie) => movie.media_type !== MediaType.Person,
+      );
       if (!medias || medias.length === 0) {
         setResults([]);
         return;
-      };
+      }
       setResults(medias.slice(0, 5) ?? []);
     } else {
       setResults([]);
@@ -57,7 +59,7 @@ const SearchBar = () => {
   };
 
   return (
-    <div className="relative mx-auto w-full max-w-md">
+    <div className="absolute inset-0 mx-auto w-full max-w-md">
       <div className="flex items-center">
         {!isSearchVisible && (
           <button
@@ -124,11 +126,21 @@ const SearchBar = () => {
               </div>
             </Link>
             {isInWatchlist(movie.id ?? 0) ? (
-              <BookmarkCheck className="absolute right-2 top-2 rounded-full bg-gray-200 p-1 hover:bg-gray-300" />
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeFromWatchlist(movie.id).catch((err) => {
+                    console.error(err);
+                    console.log("Something went wrong in catch");
+                  });
+                }}
+                className="absolute right-2 top-2 rounded-full bg-gray-200 p-1 text-gray-500 hover:bg-gray-300"
+              >
+                <BookmarkCheck className="absolute right-2 top-2 rounded-full bg-gray-200 p-1 hover:bg-gray-300" />
+              </button>
             ) : (
               <button
                 onClick={(e) => {
-                  console.log("Clicked");
                   e.stopPropagation();
                   addToWatchlist(movie.id).catch((err) => {
                     console.error(err);

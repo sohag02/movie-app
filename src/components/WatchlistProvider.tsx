@@ -44,7 +44,7 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       status: "active",
       added_at: new Date(),
     }
-    setWatchlist((prevWatchlist) => [...prevWatchlist, movie]);
+    setWatchlist((prevWatchlist) => [movie, ...prevWatchlist]);
     } else {
       console.error(data.message);
     }
@@ -57,7 +57,12 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         'Content-Type': 'application/json',
       },
     });
-    setWatchlist((prevWatchlist) => prevWatchlist.filter((movie) => movie.id !== movieId));
+    const data = await res.json() as WatchlistResponse;
+    if (data.success) {
+      setWatchlist((prevWatchlist) => prevWatchlist.filter((movie) => movie.movie_id !== movieId));
+    } else {
+      console.error(data.message);
+    }
   };
 
   const isInWatchlist = (movieId: number) => {
