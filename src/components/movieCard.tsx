@@ -4,7 +4,6 @@ import Image from "next/image";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -31,12 +30,12 @@ export const MovieCard = ({
           // layout="responsive" // Make sure Image component is responsive
         />
       </CardContent>
-      <CardHeader className="p-1">
-        <CardTitle className="truncate-multiline-2 text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl'>">
+      <CardHeader className="p-0">
+        <CardTitle className="truncate-multiline-2 font-semibold text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl'>">
           {name}
         </CardTitle>
       </CardHeader>
-      <CardFooter className="p-1">
+      <CardFooter className="p-0">
         <p className="text-gray-500">{release}</p>
       </CardFooter>
     </Card>
