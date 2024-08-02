@@ -30,10 +30,10 @@ const MobileNavbar = () => {
       <button onClick={() => handleButtonClick('/')} className={getButtonClass('/')}>
         <Bookmark className="w-6 h-6" />
       </button>
-      <button onClick={() => handleButtonClick('/search')} className={getButtonClass('/search')}>
+      <button onClick={() => handleButtonClick('/explore')} className={getButtonClass('/search')}>
         <Clapperboard className="w-6 h-6" />
       </button>
-      <button onClick={() => handleButtonClick('/profile')} className={getButtonClass('/profile')}>
+      <button onClick={() => handleButtonClick('/settings')} className={getButtonClass('/profile')}>
         <Settings className="w-6 h-6" />
       </button>
     </div>

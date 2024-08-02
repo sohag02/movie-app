@@ -16,6 +16,24 @@ export const getMovie = async (id: number): Promise<MovieDetails> => {
   return data;
 };
 
+export const getPopularMovies = async (): Promise<SearchResponse> => {
+  const res = await fetch(`https://api.themoviedb.org/3/movie/popular?page=1&api_key=${API_KEY}`);
+  const data = (await res.json()) as SearchResponse;
+  return data;
+}
+
+export const getTopRatedMovies = async (): Promise<SearchResponse> => {
+  const res = await fetch(`https://api.themoviedb.org/3/top_rated/movie?api_key=${API_KEY}`);
+  const data = (await res.json()) as SearchResponse;
+  return data;
+}
+
+export const getUpcomingMovies = async (): Promise<SearchResponse> => {
+  const res = await fetch(`https://api.themoviedb.org/3/movie/upcoming?api_key=${API_KEY}`);
+  const data = (await res.json()) as SearchResponse;
+  return data;
+}
+
 export const getImage = (path: string, size = "w500"): string => {
   return `https://image.tmdb.org/t/p/${size}${path}`;
 }
