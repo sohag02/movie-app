@@ -31,7 +31,7 @@ export const MovieCard = ({
         />
       </CardContent>
       <CardHeader className="p-0">
-        <CardTitle className="truncate-multiline-2 font-semibold text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl'>">
+        <CardTitle className="truncate-multiline-2 font-medium text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl'>">
           {name}
         </CardTitle>
       </CardHeader>

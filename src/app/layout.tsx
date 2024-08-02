@@ -23,7 +23,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" className={`${GeistSans.variable}`}>
         <WatchlistProvider>
-          <body className="dark">
+          <body className="dark mb-24">
             <Navbar />
             {children}
           <BottomNavbar />
