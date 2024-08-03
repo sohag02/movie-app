@@ -9,7 +9,7 @@ import { MovieCardSkeleton } from "@/components/movieCard";
 
 import React from 'react'
 
-export const MovieList = () => {
+const MovieList = () => {
   const { watchlist } = useWatchlist();
   const [movies, setMovies] = useState<MovieDetails[]>([]);
   const [page, setPage] = useState(1);
