@@ -1,37 +1,20 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import { type MovieDetails } from "@/lib/interfaces";
+import React from "react";
 import Image from "next/image";
-import { getImage } from "@/lib/tmdb";
+import { getImage, getMovie } from "@/lib/tmdb";
 import { formatDuration } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Plus, Check } from "lucide-react";
-import { useWatchlist } from "@/components/WatchlistProvider";
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink } from "lucide-react";
 import Link from "next/link";
+import WatchlistButton from "@/components/WatchlistButton";
+import { Button } from "@/components/ui/button";
 
-
-export default function MoviePage({ params }: { params: { id: string } }) {
+export default async function MoviePage({
+  params,
+}: {
+  params: { id: string };
+}) {
   const id = params.id;
-  const [movie, setMovie] = useState<MovieDetails | null>(null);
-  const { isInWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
-
-  useEffect(() => {
-    // Define an async function inside useEffect to handle the fetch
-    const fetchMovie = async () => {
-      try {
-        const res = await fetch(`/api/movie?id=${id}`);
-        const data = (await res.json()) as MovieDetails;
-        setMovie(data); // Assuming the API returns JSON
-      } catch (error) {
-        console.error("Failed to fetch movie:", error);
-      }
-    };
-
-    // Call the async function
-    fetchMovie().catch(console.error);
-  }, [id]); // Dependency array ensures this effect runs only when `id` changes
+  const movie = await getMovie(parseInt(id));
 
   return (
     <div>
@@ -54,7 +37,6 @@ export default function MoviePage({ params }: { params: { id: string } }) {
               width={300}
               height={450}
               className="h-auto w-1/2 rounded-lg sm:w-3/4 md:w-1/2 lg:w-1/3 xl:w-1/4"
-              // layout="responsive"
             />
             <div>
               <p className="mt-4 text-3xl font-bold text-white">
@@ -67,28 +49,23 @@ export default function MoviePage({ params }: { params: { id: string } }) {
               </p>
               <div className="mt-4 flex flex-row flex-wrap justify-start gap-2">
                 {movie.genres?.map((genre, index) => (
-                  <p key={index} className="text-sm font-semibold text-white">
+                  <div key={index} className="text-sm font-semibold text-white">
                     <Badge variant={"outline"}>{genre.name}</Badge>
-                  </p>
+                  </div>
                 ))}{" "}
               </div>
-              {isInWatchlist(movie.id ?? 0) ? (
-                <Button
-                  className="my-4 w-full cursor-pointer text-xl md:w-1/4 lg:w-1/2 xl:w-1/3"
-                  onClick={() => removeFromWatchlist(movie.id ?? 0)}
-                >
-                  <Check className="mx-2 h-5 w-5" /> In Watchlist
-                </Button>
-              ) : (
-                <Button
-                  className="my-4 w-full cursor-pointer text-xl md:w-1/4 lg:w-1/2 xl:w-1/3"
-                  onClick={() => addToWatchlist(movie.id ?? 0)}
-                >
-                  <Plus className="mx-2 h-5 w-5" /> Add To Watchlist
-                </Button>
-              )}
+
+              {/* Watchlist button */}
+              <WatchlistButton movieId={movie.id ?? 0} />
+
+              {/* Mark as watched button : TODO */}
+              <Button className="mb-4 w-full cursor-pointer text-xl md:w-1/4 lg:w-1/2 xl:w-1/3">
+                Mark as watched
+              </Button>
+
+              {/* IMDB button */}
               <Link href={`https://www.imdb.com/title/${movie.imdb_id}`}>
-                <p className="flex text-xl mb-2">
+                <p className="mb-2 flex text-xl">
                   <Image
                     src={"/IMDB_Logo.png"}
                     alt={"IMDB logo"}
