@@ -8,6 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Plus, Check } from "lucide-react";
 import { useWatchlist } from "@/components/WatchlistProvider";
+import { ExternalLink } from 'lucide-react';
+import Link from "next/link";
+
 
 export default function MoviePage({ params }: { params: { id: string } }) {
   const id = params.id;
@@ -84,16 +87,19 @@ export default function MoviePage({ params }: { params: { id: string } }) {
                   <Plus className="mx-2 h-5 w-5" /> Add To Watchlist
                 </Button>
               )}
-              <p className="flex text-xl">
-                <Image
-                  src={"/IMDB_Logo.png"}
-                  alt={"IMDB logo"}
-                  width={50}
-                  height={50}
-                  className="mr-2 h-auto w-auto"
-                />{" "}
-                {Math.round(movie.vote_average ?? 0)}/10
-              </p>
+              <Link href={`https://www.imdb.com/title/${movie.imdb_id}`}>
+                <p className="flex text-xl mb-2">
+                  <Image
+                    src={"/IMDB_Logo.png"}
+                    alt={"IMDB logo"}
+                    width={50}
+                    height={50}
+                    className="mr-2 h-auto w-auto"
+                  />{" "}
+                  {Math.round(movie.vote_average ?? 0)}/10
+                  <ExternalLink className="ml-2 h-5 w-5" />
+                </p>
+              </Link>
               <p>{movie.overview}</p>
             </div>
           </div>

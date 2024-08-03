@@ -9,12 +9,6 @@ import { MovieCardSkeleton } from "@/components/movieCard";
 
 import React from 'react'
 
-export const Loading = () => {
-  return (
-    <div>Loading...</div>
-  )
-}
-
 export const MovieList = () => {
   const { watchlist } = useWatchlist();
   const [movies, setMovies] = useState<MovieDetails[]>([]);

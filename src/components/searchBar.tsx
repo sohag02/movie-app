@@ -44,11 +44,20 @@ const SearchBar = () => {
     setIsFocused(true);    
   };
 
-  const handleBlur = () => {
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setIsFocused(false);
+      setQuery("");
+      setResults([]);
+      setIsSearchVisible(!isSearchVisible);
+    }
+  };
+
+  const clearSearch = () => {
     setIsFocused(false);
     setQuery("");
     setResults([]);
-    setIsSearchVisible(!isSearchVisible);
+    setIsSearchVisible(false);
   };
 
   const getDetailsLink = (mediaType: Movie["media_type"], id: number) => {
@@ -74,15 +83,13 @@ const SearchBar = () => {
         )}
         {isSearchVisible && (
           <div className="absolute inset-0">
-            <div className="flex w-full items-cente justify-centerr">
+            <div className="flex w-full items-center justify-center">
               <Input
                 type="text"
                 value={query}
                 onChange={handleInputChange}
                 onFocus={handleFocus}
-                onBlur={() => {
-                  handleBlur();
-                }}
+                onBlur={handleBlur}
                 className="w-full md:w-1/2 rounded-md border border-gray-300 px-4 py-2"
                 placeholder="Search for a movie..."
               />
@@ -100,27 +107,24 @@ const SearchBar = () => {
             ) : ('')}
           </div>
         )}
-      {/* {isFocused && results.length > 0 ? (
-        <div className="absolute inset-0">
-          <SearchResult />
-        </div>
-      ) : ('')} */}
       </div>
     </div>
   );
 
   function SearchResult() {
     return (
-      <ul className="absolute z-10 mt-1 max-h-auto w-full md:w-1/2 overflow-y-auto rounded-md border border-gray-300">
+      <ul className="absolute z-10 mt-1 max-h-auto w-full md:w-1/2 overflow-y-auto rounded-md border ">
         {results.map((movie) => (
           <Card
             key={movie.id}
-            className="relative flex flex-row border-b border-gray-200 p-2 last:border-none"
+            className="relative rounded-none flex flex-row border-b border-gray-200 p-2 last:border-none"
+            onMouseDown={(e) => e.preventDefault()} // Prevent input blur
           >
             <Link
               href={getDetailsLink(movie.media_type, movie.id)}
               className="flex flex-grow"
               passHref
+              onClick={clearSearch} // Clear search on click
             >
               <Image
                 src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
@@ -152,7 +156,7 @@ const SearchBar = () => {
                 }}
                 className="absolute right-2 top-2 rounded-full bg-gray-200 p-1 text-gray-500 hover:bg-gray-300"
               >
-                <BookmarkCheck className="absolute right-2 top-2 rounded-full bg-gray-200 p-1 hover:bg-gray-300" />
+                <BookmarkCheck className="h-4 w-4" />
               </button>
             ) : (
               <button
