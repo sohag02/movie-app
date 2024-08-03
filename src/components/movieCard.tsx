@@ -1,5 +1,6 @@
 import React from "react";
 import Image from "next/image";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import {
   Card,
@@ -8,6 +9,22 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
+export const MovieCardSkeleton = () => {
+  return (
+    <Card className="inline-block border-none">
+      <CardContent className="p-1">
+        <Skeleton className="rounded-sm w-28 h-44" />
+      </CardContent>
+      <CardHeader className="px-1 py-0">
+        <Skeleton className="h-6 w-full mb-2" />
+      </CardHeader>
+      <CardFooter className="px-1 py-0">
+        <Skeleton className="h-4 w-1/2" />
+      </CardFooter>
+    </Card>
+  );
+};
 
 export const MovieCard = ({
   name,
