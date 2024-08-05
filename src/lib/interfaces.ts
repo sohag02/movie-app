@@ -60,7 +60,24 @@ export interface MovieDetails {
     video?:                 boolean;
     vote_average?:          number;
     vote_count?:            number;
+    "watch/providers"?:{
+        results?: {
+            IN?: {
+                link?: string;
+                rent?: Provider[];
+                flatrate?: Provider[];
+                buy?: Provider[];
+            };
+        };
+    };
 }
+
+export interface Provider {
+    logo_path: string;
+    provider_id: number;
+    provider_name: string;
+    display_priority: number;
+  }
 
 export interface Collection {
     id?:            number;
