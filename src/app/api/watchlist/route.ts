@@ -24,21 +24,6 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  // Check if the movie is already in the watchlist
-  const isInWatchlist = await db.query.Movies.findFirst({
-    where: and(
-      eq(Movies.user_id, userId),
-      eq(Movies.movie_id, parseInt(movie_id)),
-    ),
-  });
-
-  if (isInWatchlist) {
-    return NextResponse.json({
-      success: false,
-      message: "Movie already in watchlist",
-    });
-  }
-
   const res = await db
     .insert(Movies)
     .values({
@@ -51,6 +36,48 @@ export async function POST(request: NextRequest) {
     .returning({
       id: Movies.id,
     });
+
+  return NextResponse.json({
+    success: true,
+    message: res,
+  });
+}
+
+export async function PUT(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
+  const movie_id = searchParams.get("movie_id");
+  const status = searchParams.get("status");
+
+  if (!movie_id || !status) {
+    return NextResponse.json({
+      success: false,
+      message: "No movie ID or status provided",
+    });
+  } else if (status !== "watched" && status !== "not watched") {
+    return NextResponse.json({
+      success: false,
+      message: "Invalid status",
+    });
+  }
+
+  const { userId } = auth();
+
+  if (!userId) {
+    return NextResponse.json({
+      success: false,
+      message: "User not logged in",
+    });
+  }
+
+  const res = await db
+    .update(Movies)
+    .set({ status: status })
+    .where(
+      and(
+        eq(Movies.user_id, userId),
+        eq(Movies.movie_id, parseInt(movie_id)),
+      ),
+    );
 
   return NextResponse.json({
     success: true,
