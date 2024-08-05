@@ -1,4 +1,4 @@
-import { integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, serial, integer, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
 
 export const Movies = pgTable('movies', {
   id: serial('id').primaryKey(),
@@ -7,7 +7,13 @@ export const Movies = pgTable('movies', {
   user_id: text('user_id').notNull(),
   status: text('status').notNull().default('watched'),
   added_at: timestamp('added_at').notNull().defaultNow(),
-})
+}, (table) => {
+  return {
+    uniqueMovieUser: uniqueIndex('unique_movie_user').on(table.movie_id, table.user_id)
+  };
+});
+
+
 
 export const Watchlists = pgTable('watchlists', {
   id: serial('id').primaryKey(),

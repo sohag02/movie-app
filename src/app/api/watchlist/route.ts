@@ -45,6 +45,9 @@ export async function POST(request: NextRequest) {
       user_id: userId,
       movie_id: parseInt(movie_id),
     })
+    .onConflictDoNothing({
+      target: [Movies.user_id, Movies.movie_id],
+    })
     .returning({
       id: Movies.id,
     });
