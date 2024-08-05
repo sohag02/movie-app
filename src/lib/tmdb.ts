@@ -13,7 +13,6 @@ const buildURL = (path: string): string => {
 };
 
 export const searchMovie = async (query: string): Promise<SearchResponse> => {
-  console.log(buildURL(`/search/multi?include_adult=false&language=en-US&page=1&query=${query}`));
   const res = await fetch(
     buildURL(
       `/search/multi?include_adult=false&language=en-US&page=1&query=${query}`,
@@ -24,7 +23,6 @@ export const searchMovie = async (query: string): Promise<SearchResponse> => {
 };
 
 export const getMovie = async (id: number): Promise<MovieDetails> => {
-  console.log(buildURL(`/movie/${id}?append_to_response=watch/providers`));
   const res = await fetch(buildURL(`/movie/${id}?append_to_response=watch/providers`));
   const data = (await res.json()) as MovieDetails;
   return data;
