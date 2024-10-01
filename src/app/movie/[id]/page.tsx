@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 import WatchlistButton from "@/components/WatchlistButton";
+import { MediaType } from "@/lib/interfaces";
 
 export default async function MoviePage({
   params,
@@ -33,7 +34,6 @@ export default async function MoviePage({
           </div>
 
           <div className="absolute inset-0 bg-black bg-opacity-50">
-
             {/* Movie details */}
             <div className="flex flex-col items-start justify-items-start gap-5 p-5 md:flex-row">
               <Image
@@ -64,7 +64,7 @@ export default async function MoviePage({
                 </div>
 
                 {/* Watchlist button */}
-                <WatchlistButton movieId={movie.id ?? 0} />
+                <WatchlistButton movieId={movie.id ?? 0} mediaType={MediaType.Movie} />
 
                 {/* IMDB button */}
                 <Link href={`https://www.imdb.com/title/${movie.imdb_id}`}>
@@ -103,7 +103,10 @@ export default async function MoviePage({
                         {/* <Badge variant={"outline"}>{provider.provider_name}</Badge> */}
                       </div>
                     ))}{" "}
-                  </div>) : ('')}
+                  </div>
+                ) : (
+                  ""
+                )}
               </div>
             </div>
 
