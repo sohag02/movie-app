@@ -7,6 +7,7 @@ import { eq, desc, and } from "drizzle-orm";
 export async function POST(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const movie_id = searchParams.get("movie_id");
+  const media_type = searchParams.get("media_type");
 
   if (!movie_id) {
     return NextResponse.json({
@@ -29,9 +30,10 @@ export async function POST(request: NextRequest) {
     .values({
       user_id: userId,
       movie_id: parseInt(movie_id),
+      media_type: media_type,
     })
     .onConflictDoNothing({
-      target: [Movies.user_id, Movies.movie_id],
+      target: [Movies.user_id, Movies.movie_id, Movies.media_type],
     })
     .returning({
       id: Movies.id,
