@@ -1,4 +1,4 @@
-import { type MovieDetails, type SearchResponse } from "./interfaces";
+import { type SeriesDetails, type MovieDetails, type SearchResponse } from "./interfaces";
 
 const API_KEY = process.env.TMDB_API_KEY;
 const BASE_URL = `https://api.themoviedb.org/3`;
@@ -25,6 +25,12 @@ export const searchMovie = async (query: string): Promise<SearchResponse> => {
 export const getMovie = async (id: number): Promise<MovieDetails> => {
   const res = await fetch(buildURL(`/movie/${id}?append_to_response=watch/providers`));
   const data = (await res.json()) as MovieDetails;
+  return data;
+};
+
+export const getSeries = async (id: number): Promise<MovieDetails> => {
+  const res = await fetch(buildURL(`/tv/${id}?append_to_response=watch/providers`));
+  const data = (await res.json()) as SeriesDetails;
   return data;
 };
 
@@ -71,5 +77,5 @@ export const getProviders = async (
 };
 
 export const getImage = (path: string, size = "w500"): string => {
-  return `https://image.tmdb.org/t/p/${size}${path}`;
+  return `https://image.tmdb.org/t/p/${size}${path}`; // example https://image.tmdb.org/t/p/w500/r6q3u0x0q0u7p0p7s0s7t0t7.jpg
 };

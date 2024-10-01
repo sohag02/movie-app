@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Image from "next/image";
-import { MediaType, type Movie, type SearchResponse } from "@/lib/interfaces";
+import { MediaType, type Movie, type SearchResponse, type Series, type Media } from "@/lib/interfaces";
 import { BookmarkCheck, Search, X } from "lucide-react";
 import { Bookmark } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -11,7 +11,7 @@ import { useWatchlist } from "@/components/WatchlistProvider";
 
 const SearchBar = () => {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<Movie[]>([]);
+  const [results, setResults] = useState<Media[]>([]);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const { isInWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
@@ -23,7 +23,7 @@ const SearchBar = () => {
     if (query.length > 2) {
       const res = await fetch(`/api/search?query=${query}`);
       const data = (await res.json()) as SearchResponse;
-      const medias: Movie[] = (data.results ?? []).filter(
+      const medias = (data.results ?? []).filter(
         (movie) => movie.media_type !== MediaType.Person,
       );
       if (!medias || medias.length === 0) {
@@ -128,16 +128,16 @@ const SearchBar = () => {
             >
               <Image
                 src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
-                alt={movie.title ?? "No Title"}
+                alt={movie.name ?? "No Title"}
                 width={50}
                 height={75}
                 className="rounded-sm"
               />
               <div className="ml-3">
-                <p className="font-semibold">{movie.title}</p>
+                <p className="font-semibold">{movie.name}</p>
                 <p className="text-gray-500">
                   {new Date(
-                    movie.release_date ?? "2000-01-01",
+                    movie.first_air_date ?? "2000-01-01",
                   ).toLocaleDateString()}
                 </p>
                 <p className="text-gray-500">
@@ -162,7 +162,7 @@ const SearchBar = () => {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  addToWatchlist(movie.id).catch((err) => {
+                  addToWatchlist(movie.id, movie.media_type).catch((err) => {
                     console.error(err);
                     console.log("Something went wrong in catch");
                   });

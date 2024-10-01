@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 import WatchlistButton from "@/components/WatchlistButton";
-import { Button } from "@/components/ui/button";
 
 export default async function MoviePage({
   params,
@@ -84,30 +83,31 @@ export default async function MoviePage({
                 <p>{movie.overview}</p>
 
                 {/* Providers */}
-                <div>
-                  <p className="mt-4 text-xl font-bold text-white">
-                    Where to watch?
-                  </p>
-                  {providers.map((provider, index) => (
-                    <div
-                      key={index}
-                      className="flex text-2xl font-semibold text-white"
-                    >
-                      <Image
-                        src={getImage(provider.logo_path, "original")}
-                        alt={provider.provider_name}
-                        width={50}
-                        height={50}
-                        className="my-2 mr-2 rounded-md"
-                      />{" "}
-                      {/* <Badge variant={"outline"}>{provider.provider_name}</Badge> */}
-                    </div>
-                  ))}{" "}
-                </div>
+                {providers.length > 0 ? (
+                  <div>
+                    <p className="mt-4 text-xl font-bold text-white">
+                      Where to watch?
+                    </p>
+                    {providers.map((provider, index) => (
+                      <div
+                        key={index}
+                        className="flex text-2xl font-semibold text-white"
+                      >
+                        <Image
+                          src={getImage(provider.logo_path, "original")}
+                          alt={provider.provider_name}
+                          width={50}
+                          height={50}
+                          className="my-2 mr-2 rounded-md"
+                        />{" "}
+                        {/* <Badge variant={"outline"}>{provider.provider_name}</Badge> */}
+                      </div>
+                    ))}{" "}
+                  </div>) : ('')}
               </div>
             </div>
 
-            <div className=" pb-24">{movie.budget}</div>
+            <div className="pb-24">{movie.budget}</div>
           </div>
         </div>
       ) : (

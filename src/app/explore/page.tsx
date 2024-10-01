@@ -6,12 +6,12 @@ import {
   getUpcomingMovies,
 } from "@/lib/tmdb";
 import { getImage } from "@/lib/tmdb";
-import { type Movie } from "@/lib/interfaces";
+import { type Media } from "@/lib/interfaces";
 import Link from "next/link";
 import { RectangleVertical } from "lucide-react";
 
 interface MovieListProps {
-  list: Movie[];
+  list: Media[];
   title?: string;
 }
 

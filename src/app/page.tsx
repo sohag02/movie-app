@@ -1,31 +1,39 @@
-'use client';
+"use client";
 import { MovieCard } from "@/components/movieCard";
 import { getImage } from "@/lib/tmdb";
-import { type MovieDetails } from "@/lib/interfaces";
+import {
+  type MovieDetails,
+  type MediaDetails,
+} from "@/lib/interfaces";
 import { useWatchlist } from "@/components/WatchlistProvider";
 import Link from "next/link";
 import { useState, useEffect, useRef, Suspense } from "react";
 import { MovieCardSkeleton } from "@/components/movieCard";
-
-import React from 'react'
+import React from "react";
 
 const MovieList = () => {
   const { watchlist } = useWatchlist();
-  const [movies, setMovies] = useState<MovieDetails[]>([]);
+  const [movies, setMovies] = useState<MediaDetails[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const observer = useRef<IntersectionObserver | null>(null);
+  const movieCache = useRef<Map<number, MediaDetails>>(new Map());
 
   useEffect(() => {
     const fetchMovies = async () => {
       setLoading(true);
-      // Fetch and enhance the movies
       const enhancedMovies = await Promise.all(
         watchlist.slice((page - 1) * 10, page * 10).map(async (movie) => {
-          const res = await fetch(`/api/movie?id=${movie.movie_id}`);
-          const fetchedMovie = (await res.json()) as MovieDetails;
-          return fetchedMovie;
-        })
+          if (movieCache.current.has(movie.movie_id)) {
+            return movieCache.current.get(movie.movie_id)!;
+          } else {
+            console.log(movie.media_type, movie.movie_id);
+            const res = await fetch(`/api/${movie.media_type}?id=${movie.movie_id}`);
+            const fetchedMovie = (await res.json()) as MovieDetails;
+            movieCache.current.set(movie.movie_id, fetchedMovie);
+            return fetchedMovie;
+          }
+        }),
       );
       setMovies((prevMovies) => [...prevMovies, ...enhancedMovies]);
       setLoading(false);
@@ -44,8 +52,8 @@ const MovieList = () => {
     };
 
     observer.current = new IntersectionObserver(callback);
-    if (observer.current && document.querySelector('#load-more')) {
-      observer.current.observe(document.querySelector('#load-more')!);
+    if (observer.current && document.querySelector("#load-more")) {
+      observer.current.observe(document.querySelector("#load-more")!);
     }
 
     return () => observer.current?.disconnect();
@@ -53,23 +61,41 @@ const MovieList = () => {
 
   return (
     <div className="">
-      <div className="mx-1 gap-1 grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-          {movies.map((movie) => (
-            <Link href={`/movie/${movie.id}`} key={movie.id} className="inline-block h-auto w-auto">
-              <MovieCard
-                key={movie.id}
-                name={movie.title ?? "Unknown"}
-                release={movie.release_date?.toString().slice(0, 4) ?? "Unknown"}
-                poster_url={getImage(movie.poster_path ?? "/3E53WEZJqP6aM84D8CckXx4pIHw.jpg", 'w200')}
-              />
-            </Link>
-          ))}
-      {loading && [...Array(10).keys()].map((_, i) => <MovieCardSkeleton key={i} />)}
+      <div className="mx-1 grid grid-cols-3 gap-1 md:grid-cols-4 lg:grid-cols-5">
+        {movies.map((movie) => (
+          <Link
+            href={
+              movie.first_air_date
+                ? `/tv/${movie.id}` 
+                : `/movie/${movie.id}`
+            }
+            key={movie.id}
+            className="inline-block h-auto w-auto"
+          >
+            <MovieCard
+              key={movie.id}
+              name={movie.title ? movie.title : (movie.name ?? "Unknown")}
+              release={
+                movie.release_date
+                  ? movie.release_date.toString().slice(0, 4)
+                  : movie.first_air_date
+                    ? movie.first_air_date.toString().slice(0, 4)
+                    : "Unknown"
+              }
+              poster_url={getImage(
+                movie.poster_path ?? "/3E53WEZJqP6aM84D8CckXx4pIHw.jpg",
+                "w200",
+              )}
+            />
+          </Link>
+        ))}
+        {loading &&
+          [...Array(10).keys()].map((_, i) => <MovieCardSkeleton key={i} />)}
       </div>
       <div id="load-more" className="h-10"></div>
     </div>
   );
-}
+};
 
 export default function HomePage() {
   return (

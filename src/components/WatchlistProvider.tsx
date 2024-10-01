@@ -1,14 +1,14 @@
 'use client';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from "@clerk/nextjs";
-import { type Watchlist, type WatchlistMovie, type WatchlistResponse } from "@/lib/interfaces";
+import { type Watchlist, type WatchlistMedia, type WatchlistResponse, type MediaType } from "@/lib/interfaces";
 
 type MovieStatus = 'not watched' | 'watched';
 
 interface WatchlistContextType {
-  watchlist: WatchlistMovie[];
-  setWatchlist: React.Dispatch<React.SetStateAction<WatchlistMovie[]>>;
-  addToWatchlist: (movieID: number) => Promise<void>;
+  watchlist: WatchlistMedia[];
+  setWatchlist: React.Dispatch<React.SetStateAction<WatchlistMedia[]>>;
+  addToWatchlist: (movieID: number, mediaType: MediaType) => Promise<void>;
   removeFromWatchlist: (movieId: number) => Promise<void>;
   isInWatchlist: (movieId: number) => boolean;
   isWatched: (movieId: number) => boolean;
@@ -18,7 +18,7 @@ interface WatchlistContextType {
 const WatchlistContext = createContext<WatchlistContextType | undefined>(undefined);
 
 export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [watchlist, setWatchlist] = useState<WatchlistMovie[]>([]);
+  const [watchlist, setWatchlist] = useState<WatchlistMedia[]>([]);
   const { userId } = useAuth();
 
   useEffect(() => {
@@ -31,8 +31,8 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     fetchWatchlist().catch(console.error);
   }, []);
 
-  const addToWatchlist = async (movieID: number) => {
-    const res = await fetch(`/api/watchlist?movie_id=${movieID}`, {
+  const addToWatchlist = async (mediaID: number, mediaType: MediaType) => {
+    const res = await fetch(`/api/watchlist?movie_id=${mediaID}&media_type=${mediaType}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -40,10 +40,11 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     });
     const data = await res.json() as WatchlistResponse;
     if (data.success) {
-    const movie: WatchlistMovie = {
-      id: movieID,
+    const movie: WatchlistMedia = {
+      id: mediaID,
       watchlist_id: null,
-      movie_id: movieID,
+      movie_id: mediaID,
+      media_type: mediaType,
       user_id: userId?.toString() ?? "",
       status: "active",
       added_at: new Date(),
