@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
   const movie_id = searchParams.get("movie_id");
   const media_type = searchParams.get("media_type");
 
-  if (!movie_id) {
+  if (!movie_id || !media_type) {
     return NextResponse.json({
       success: false,
       message: "No movie ID provided",
