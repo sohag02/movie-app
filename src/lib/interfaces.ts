@@ -185,6 +185,16 @@ export interface SeriesDetails {
     type?:                 string;
     vote_average?:         number;
     vote_count?:           number;
+    "watch/providers"?:{
+        results?: {
+            IN?: {
+                link?: string;
+                rent?: Provider[];
+                flatrate?: Provider[];
+                buy?: Provider[];
+            };
+        };
+    };
 }
 
 export interface CreatedBy {
