@@ -13,19 +13,23 @@ interface WatchlistContextType {
   isInWatchlist: (movieId: number) => boolean;
   isWatched: (movieId: number) => boolean;
   updateStatus: (movieId: number, status: MovieStatus) => Promise<void>;
+  isWatchlistLoading: boolean;
 }
 
 const WatchlistContext = createContext<WatchlistContextType | undefined>(undefined);
 
 export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [watchlist, setWatchlist] = useState<WatchlistMedia[]>([]);
+  const [isWatchlistLoading, setisWatchlistLoading] = useState(true); // Add loading state
   const { userId } = useAuth();
 
   useEffect(() => {
     const fetchWatchlist = async () => {
+      setisWatchlistLoading(true); // Set loading to true before fetching
       const res = await fetch(`/api/watchlist`);
       const data = await res.json() as Watchlist;
       setWatchlist(data.watchlist);
+      setisWatchlistLoading(false); // Set loading to false after fetching
     };
 
     fetchWatchlist().catch(console.error);
@@ -47,6 +51,7 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       media_type: mediaType,
       user_id: userId?.toString() ?? "",
       status: "active",
+      display: true,
       added_at: new Date(),
     }
     setWatchlist((prevWatchlist) => [movie, ...prevWatchlist]);
@@ -99,7 +104,7 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   return (
-    <WatchlistContext.Provider value={{ watchlist, setWatchlist, addToWatchlist, removeFromWatchlist, isInWatchlist, updateStatus, isWatched }}>
+    <WatchlistContext.Provider value={{ watchlist, setWatchlist, addToWatchlist, removeFromWatchlist, isInWatchlist, updateStatus, isWatched, isWatchlistLoading }}>
       {children}
     </WatchlistContext.Provider>
   );

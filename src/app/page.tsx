@@ -1,79 +1,97 @@
 "use client";
 import { MovieCard } from "@/components/movieCard";
 import { getImage } from "@/lib/tmdb";
-import {
-  type MovieDetails,
-  type MediaDetails,
-} from "@/lib/interfaces";
+import { type MediaDetails } from "@/lib/interfaces";
 import { useWatchlist } from "@/components/WatchlistProvider";
 import Link from "next/link";
-import { useState, useEffect, useRef, Suspense } from "react";
 import { MovieCardSkeleton } from "@/components/movieCard";
-import React from "react";
+import React, { useEffect, useRef } from "react";
+
+import { useInfiniteQuery } from "@tanstack/react-query";
+
+import { useIntersection } from "@mantine/hooks"
+
+import {
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
 
 const MovieList = () => {
-  const { watchlist } = useWatchlist();
-  const [movies, setMovies] = useState<MediaDetails[]>([]);
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const observer = useRef<IntersectionObserver | null>(null);
-  const movieCache = useRef<Map<number, MediaDetails>>(new Map());
+  const { watchlist, isWatchlistLoading } = useWatchlist();
+ 
+  const getMovies = async (page: number) => {
+    const res = await Promise.all(
+      watchlist.slice((page - 1) * 10, page * 10).map(async (movie) => {
+        const res = await fetch(
+          `/api/${movie.media_type}?id=${movie.movie_id}`,
+        );
+        const fetchedMovie = (await res.json()) as MediaDetails;
+        return fetchedMovie;
+      }),
+    );
+    return res;
+  };
 
-  useEffect(() => {
-    const fetchMovies = async () => {
-      setLoading(true);
-      const enhancedMovies = await Promise.all(
-        watchlist.slice((page - 1) * 10, page * 10).map(async (movie) => {
-          if (movieCache.current.has(movie.movie_id)) {
-            return movieCache.current.get(movie.movie_id)!;
-          } else {
-            console.log(movie.media_type, movie.movie_id);
-            const res = await fetch(`/api/${movie.media_type}?id=${movie.movie_id}`);
-            const fetchedMovie = (await res.json()) as MovieDetails;
-            movieCache.current.set(movie.movie_id, fetchedMovie);
-            return fetchedMovie;
-          }
-        }),
-      );
-      setMovies((prevMovies) => [...prevMovies, ...enhancedMovies]);
-      setLoading(false);
-    };
-
-    fetchMovies().catch((err) => console.error(err));
-  }, [watchlist, page]);
-
-  useEffect(() => {
-    if (observer.current) observer.current.disconnect();
-
-    const callback = (entries: IntersectionObserverEntry[]) => {
-      if (entries[0]?.isIntersecting && !loading) {
-        setPage((prevPage) => prevPage + 1);
+  const { data, fetchNextPage, isFetchingNextPage, isSuccess } = useInfiniteQuery({
+    queryKey: ["movies"],
+    queryFn: async ({ pageParam = 1 }) => {
+      const res = await getMovies(pageParam);
+      return res;
+    },
+    initialPageParam: 1,
+    getNextPageParam: (_, pages) => {
+      if (pages.length === 1) {
+        return 1;
       }
-    };
+      return pages.length + 1;
+    },
+    select: (data) => {
+      // Flatten the pages array
+      return {
+        ...data,
+        pages: data.pages.flat(),
+      };
+    },
+  });
 
-    observer.current = new IntersectionObserver(callback);
-    if (observer.current && document.querySelector("#load-more")) {
-      observer.current.observe(document.querySelector("#load-more")!);
-    }
+  const lastPost = useRef<HTMLDivElement | null>(null);
 
-    return () => observer.current?.disconnect();
-  }, [loading]);
+  const { ref, entry} = useIntersection({
+    root: lastPost.current,
+    threshold: 1
+  })
+
+  useEffect(() => {
+    if (entry?.isIntersecting) {
+      fetchNextPage();
+    } 
+  }, [entry]);
+
+
+  if (isWatchlistLoading) {
+    return <div>Loading watchlist...</div>;
+  }
 
   return (
-    <div className="">
+    <div className="m-2">
+      {isSuccess && data.pages.length === 0 && !isFetchingNextPage &&
+        <>
+          <div className="text-center">
+            Nothing Found in Watchlist
+          </div>
+          {loadBtn()}
+        </>
+      }
       <div className="mx-1 grid grid-cols-3 gap-1 md:grid-cols-4 lg:grid-cols-5">
-        {movies.map((movie) => (
+        {isSuccess && data.pages.length > 0 && data.pages.map((movie) => (
           <Link
             href={
-              movie.first_air_date
-                ? `/tv/${movie.id}` 
-                : `/movie/${movie.id}`
+              movie.first_air_date ? `/tv/${movie.id}` : `/movie/${movie.id}`
             }
-            key={movie.id}
+            key={data.pages.indexOf(movie)}
             className="inline-block h-auto w-auto"
           >
             <MovieCard
-              key={movie.id}
               name={movie.title ? movie.title : (movie.name ?? "Unknown")}
               release={
                 movie.release_date
@@ -89,18 +107,26 @@ const MovieList = () => {
             />
           </Link>
         ))}
-        {loading &&
+        {isFetchingNextPage &&
           [...Array(10).keys()].map((_, i) => <MovieCardSkeleton key={i} />)}
+        {/* <div ref={ref} id="load-more" className="h-10"></div> */}
       </div>
-      <div id="load-more" className="h-10"></div>
+      {loadBtn()}
     </div>
   );
+
+  function loadBtn() {
+    return <div ref={ref} id="load-more" className="h-10 bg-transparent">
+      
+    </div>;
+  }
 };
 
 export default function HomePage() {
+  const queryClient = new QueryClient();
   return (
-    <Suspense>
+    <QueryClientProvider client={queryClient}>
       <MovieList />
-    </Suspense>
+    </QueryClientProvider>
   );
 }
