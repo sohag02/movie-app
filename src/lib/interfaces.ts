@@ -93,6 +93,7 @@ export interface MovieDetails {
             };
         };
     };
+    "credits": Credits;
 }
 
 export interface Provider {
@@ -195,6 +196,7 @@ export interface SeriesDetails {
             };
         };
     };
+    "credits": Credits;
 }
 
 export interface CreatedBy {
@@ -254,4 +256,26 @@ export interface SpokenLanguage {
     english_name?: string;
     iso_639_1?:    string;
     name?:         string;
+}
+
+export interface Credits {
+    cast: Cast[];
+    crew: Cast[];
+}
+
+export interface Cast {
+    adult:                boolean;
+    gender:               number;
+    id:                   number;
+    known_for_department: string;
+    name:                 string;
+    original_name:        string;
+    popularity:           number;
+    profile_path:         string;
+    cast_id?:             number;
+    character?:           string;
+    credit_id:            string;
+    order?:               number;
+    department?:          string;
+    job?:                 string;
 }

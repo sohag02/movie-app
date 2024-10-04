@@ -23,13 +23,13 @@ export const searchMovie = async (query: string): Promise<SearchResponse> => {
 };
 
 export const getMovie = async (id: number): Promise<MovieDetails> => {
-  const res = await fetch(buildURL(`/movie/${id}?append_to_response=watch/providers`));
+  const res = await fetch(buildURL(`/movie/${id}?append_to_response=watch/providers,credits`));
   const data = (await res.json()) as MovieDetails;
   return data;
 };
 
 export const getSeries = async (id: number): Promise<SeriesDetails> => {
-  const res = await fetch(buildURL(`/tv/${id}?append_to_response=watch/providers`));
+  const res = await fetch(buildURL(`/tv/${id}?append_to_response=watch/providers,credits`));
   const data = (await res.json()) as SeriesDetails;
   return data;
 };
