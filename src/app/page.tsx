@@ -14,7 +14,7 @@ import React from "react";
 const MovieList = () => {
   const { watchlist } = useWatchlist();
   const [movies, setMovies] = useState<MediaDetails[]>([]);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
   const observer = useRef<IntersectionObserver | null>(null);
   const movieCache = useRef<Map<number, MediaDetails>>(new Map());
