@@ -134,7 +134,7 @@ const SearchBar = () => {
                 className="rounded-sm"
               />
               <div className="ml-3">
-                <p className="font-semibold">{movie.name}</p>
+                <p className="font-semibold">{movie.title ?? movie.name}</p>
                 <p className="text-gray-500">
                   {new Date(
                     movie.first_air_date ?? "2000-01-01",
