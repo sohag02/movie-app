@@ -13,11 +13,13 @@ type MovieStatus = "not watched" | "watched";
 interface WatchlistContextType {
   watchlist: WatchlistMedia[];
   setWatchlist: React.Dispatch<React.SetStateAction<WatchlistMedia[]>>;
+  filteredWatchlist: WatchlistMedia[];
   addToWatchlist: (movieID: number, mediaType: MediaType) => Promise<void>;
   removeFromWatchlist: (movieId: number) => Promise<void>;
   isInWatchlist: (movieId: number) => boolean;
   isWatched: (movieId: number) => boolean;
   updateStatus: (movieId: number, status: MovieStatus) => Promise<void>;
+  setMediaTypeFilter: (mediaType: MediaType | null) => void;
 }
 
 const WatchlistContext = createContext<WatchlistContextType | undefined>(
@@ -28,13 +30,30 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [watchlist, setWatchlist] = useState<WatchlistMedia[]>([]);
+  const [filteredWatchlist, setFilteredWatchlist] = useState<WatchlistMedia[]>(
+    [],
+  );
+  const [mediaTypeFilter, setMediaTypeFilter] = useState<MediaType | null>(
+    null,
+  );
   const { userId } = useAuth();
+
+  // useeffect for filter
+  useEffect(() => {
+    if (mediaTypeFilter) {
+      const filtered = watchlist.filter((movie) => movie.media_type === mediaTypeFilter);
+      setFilteredWatchlist(filtered);
+    } else {
+      setFilteredWatchlist(watchlist);
+    }
+  }, [mediaTypeFilter, watchlist]);
 
   useEffect(() => {
     const fetchWatchlist = async () => {
       const res = await fetch(`/api/watchlist`);
       const data = (await res.json()) as Watchlist;
       setWatchlist(data.watchlist);
+      setFilteredWatchlist(data.watchlist);
     };
 
     fetchWatchlist().catch(console.error);
@@ -119,16 +138,25 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({
     );
   };
 
+  // const filteredWatchlist = watchlist.filter((movie) => {
+  //   if (mediaTypeFilter) {
+  //     return movie.media_type === mediaTypeFilter;
+  //   }
+  //   return true;
+  // });
+
   return (
     <WatchlistContext.Provider
       value={{
         watchlist,
         setWatchlist,
+        filteredWatchlist,
         addToWatchlist,
         removeFromWatchlist,
         isInWatchlist,
         updateStatus,
         isWatched,
+        setMediaTypeFilter,
       }}
     >
       {children}
