@@ -1,6 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Image as ImageIcon } from 'lucide-react';
 
 import {
   Card,
@@ -33,19 +34,27 @@ export const MovieCard = ({
 }: {
   name: string;
   release: string;
-  poster_url: string;
+  poster_url: string | null;
 }) => {
   return (
     <Card className="inline-block border-none">
       <CardContent className="p-1">
-        <Image
-          className="rounded-sm"
-          src={poster_url}
-          alt={name}
-          width={200}
-          height={300}
-          // layout="responsive" // Make sure Image component is responsive
-        />
+        {poster_url ? (
+          <Image
+            className="rounded-sm"
+            src={poster_url}
+            alt={name}
+            width={200}
+            height={300}
+            // layout="responsive" // Make sure Image component is responsive
+          />
+        ) : (
+          <div className="bg-gray-400 flex items-center justify-center">
+            <ImageIcon
+              className="rounded-sm"
+            />
+          </div>
+        )}
       </CardContent>
       <CardHeader className="p-0">
         <CardTitle className="truncate-multiline-2 font-medium text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl'>">

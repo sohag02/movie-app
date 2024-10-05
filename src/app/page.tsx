@@ -83,7 +83,7 @@ const MovieList = () => {
                     : "Unknown"
               }
               poster_url={getImage(
-                movie.poster_path ?? "/3E53WEZJqP6aM84D8CckXx4pIHw.jpg",
+                movie.poster_path ?? "",
                 "w200",
               )}
             />
