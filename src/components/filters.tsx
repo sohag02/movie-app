@@ -35,7 +35,7 @@ export const Filters = () => {
 			<div className="mx-2 md:w-auto md:h-auto">
 				<Badge>
 						<X className="h-6 w-6 rounded-full p-1 bg-black" stroke="white" strokeWidth={3} fill="white" onClick={() => setPosition("all")} /> 
-					<span className="ml-2 text-lg">
+					<span className="ml-2 text-lg font-normal">
 						{position === MediaType.Movie ? "Movies" : "TV Series"}
 					</span>
 				</Badge>

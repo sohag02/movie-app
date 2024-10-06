@@ -23,10 +23,11 @@ const MediaDetails: React.FC<MediaDetailsProps> = ({ media, providers }) => {
           {/* Background image */}
           <div className="relative h-full w-full px-2">
             <Image
-              src={getImage(media.backdrop_path ?? "", "original")}
+              src={getImage(media.backdrop_path ?? "", "original") ?? "/background.jpg"}
               alt={media.title ?? media.name ?? ""}
               width={800}
               height={1200}
+              priority
               className="h-full w-full object-cover md:blur-md"
             />
             <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-background to-transparent"></div>
@@ -36,11 +37,12 @@ const MediaDetails: React.FC<MediaDetailsProps> = ({ media, providers }) => {
             {/* Media details */}
             <div className="flex flex-col items-start justify-items-start gap-5 px-4 py-5 sm:flex-row">
               <Image
-                src={getImage(media.poster_path ?? "")}
+                src={getImage(media.poster_path ?? "") ?? "/poster.jpg"}
                 alt={media.title ?? media.name ?? ""}
                 width={300}
                 height={450}
                 className="h-auto w-1/2 rounded-lg sm:w-3/4 md:w-1/2 lg:w-1/3 xl:w-1/4"
+                priority
               />
               <div>
                 <p className="mt-4 text-3xl font-bold text-white">
@@ -50,7 +52,7 @@ const MediaDetails: React.FC<MediaDetailsProps> = ({ media, providers }) => {
                 <p className="text-sm font-semibold text-gray-300">
                   {media.release_date?.substring(0, 4) ??
                     media.first_air_date?.substring(0, 4)}{" "}
-                  &bull; {formatDuration(media.runtime ?? 0)}
+                  &bull; {formatDuration(media.runtime ?? media.episode_run_time![0] ?? 0)}
                 </p>
                 <div className="mt-4 flex flex-row flex-wrap justify-start gap-2">
                   {media.genres?.map((genre, index) => (
@@ -102,7 +104,7 @@ const MediaDetails: React.FC<MediaDetailsProps> = ({ media, providers }) => {
                           className="flex text-2xl font-semibold text-white"
                         >
                           <Image
-                            src={getImage(provider.logo_path, "original")}
+                            src={getImage(provider.logo_path, "original") ?? "/provider.png"}
                             alt={provider.provider_name}
                             width={50}
                             height={50}
@@ -119,21 +121,26 @@ const MediaDetails: React.FC<MediaDetailsProps> = ({ media, providers }) => {
             </div>
 
             {/* Cast */}
-            <div className="mx-4 pb-4">
-              <p className="text-xl font-bold text-white">Cast</p>
+            <div className="pb-4">
+              <p className="mx-4 text-xl font-bold text-white">Cast</p>
               <ScrollArea className="whitespace-nowrap">
-                <div className="flex flex-row items-start justify-items-start gap-5 py-5">
+                <div className="flex px-4 w-max space-x-2 gap-4 py-5">
                   {media.credits.cast
                     .filter((cast) => cast.known_for_department === "Acting")
                     .slice(0, 10)
                     .map((cast) => {
-                    // if (cast.known_for_department === "Acting") {
                       return <CastCard cast={cast} key={cast.id} />;
-                    // }
-                  })}
-                  {media.credits.cast.filter((cast) => cast.known_for_department === "Acting").length > 10 && (
-                    <div className="text-lg bg-blue-500 rounded-full w-32 h-32 flex flex-col items-center justify-center text-gray-200">
-                      <span className="font-bold">+ {media.credits.cast.filter((cast) => cast.known_for_department === "Acting").length - 10}</span>
+                    })}
+                  {media.credits.cast.filter(
+                    (cast) => cast.known_for_department === "Acting",
+                  ).length > 10 && (
+                    <div className="flex h-32 w-32 flex-col items-center justify-center rounded-full bg-blue-500 text-lg text-gray-200">
+                      <span className="font-bold">
+                        +{" "}
+                        {media.credits.cast.filter(
+                          (cast) => cast.known_for_department === "Acting",
+                        ).length - 10}
+                      </span>
                       <span className="font-bold">Others</span>
                     </div>
                   )}
@@ -141,20 +148,38 @@ const MediaDetails: React.FC<MediaDetailsProps> = ({ media, providers }) => {
                 <ScrollBar orientation="horizontal" />
               </ScrollArea>
 
-              {/* Director */}
-              <div className="flex flex-col sm:flex-row sm:gap-5">
-                <p className="text-xl font-bold text-white">Director</p>
-                <div className="flex flex-row flex-wrap justify-start gap-2 text-gray-400">
-                  {media.credits.crew
-                    .filter((crew) => crew.job === "Director")
-                    .map((crew, index, array) => (
+              {/* Director For Movies */}
+              {!media.created_by && (
+                  <div className="mx-4 flex flex-col sm:flex-row sm:gap-5">
+                    <p className="text-xl font-bold text-white">Director</p>
+                    <div className="flex flex-row flex-wrap justify-start gap-2 text-gray-400">
+                      {media.credits.crew
+                        .filter((crew) => crew.job === "Director")
+                        .map((crew, index, array) => (
+                          <span key={crew.id} className="text-lg text-gray-200">
+                            {crew.name}
+                            {index < array.length - 1 && ", "}
+                          </span>
+                        ))}
+                    </div>
+                  </div>
+                )}
+              
+              {/* Created By for TV */}
+              {media.created_by && (
+                <div className="mx-4 flex flex-col sm:flex-row sm:gap-5">
+                  <p className="text-xl font-bold text-white">Created By</p>
+                  <div className="flex flex-row flex-wrap justify-start gap-2 text-gray-400">
+                    {media.created_by.map((crew, index, array) => (
                       <span key={crew.id} className="text-lg text-gray-200">
                         {crew.name}
                         {index < array.length - 1 && ", "}
                       </span>
                     ))}
+                  </div>
                 </div>
-              </div>
+              )}
+
             </div>
 
             {/* Padding */}

@@ -157,7 +157,7 @@ export interface SeriesDetails {
     adult?:                boolean;
     backdrop_path?:        string;
     created_by?:           CreatedBy[];
-    episode_run_time?:     [];
+    episode_run_time?:     number[];
     first_air_date?:       string;
     genres?:               Genre[];
     homepage?:             string;
