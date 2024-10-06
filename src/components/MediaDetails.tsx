@@ -9,13 +9,20 @@ import { getImage } from "@/lib/tmdb";
 import { formatDuration } from "@/lib/utils";
 import { CastCard } from "@/components/CastCard";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { type Media } from "@/lib/interfaces";
+import { MovieCard } from "@/components/movieCard";
 
 interface MediaDetailsProps {
   media: MediaDetails;
   providers: Provider[];
+  similar: Media[];
 }
 
-const MediaDetails: React.FC<MediaDetailsProps> = ({ media, providers }) => {
+const MediaDetails: React.FC<MediaDetailsProps> = ({
+  media,
+  providers,
+  similar,
+}) => {
   return (
     <div>
       {media ? (
@@ -181,6 +188,39 @@ const MediaDetails: React.FC<MediaDetailsProps> = ({ media, providers }) => {
               )}
 
             </div>
+
+            {/* Similar Content */}
+            {similar.length > 0 && (
+            <div className="pb-4">
+              <p className="mx-4 text-xl font-bold text-white">Similar</p>
+              <ScrollArea className="whitespace-nowrap h-96">
+                <div className="flex w-max space-x-2 py-5 px-4">
+                  {similar.map((movie) => (
+                    <Link
+                      href={
+                        movie.first_air_date
+                          ? `/tv/${movie.id}`
+                          : `/movie/${movie.id}`
+                      }
+                      key={movie.id}
+                      className="h-64 md:h-72 w-48"
+                    >
+                      <MovieCard
+                        name={movie.title ?? movie.name ?? "Unknown"}
+                        release={
+                          (movie.release_date ?? movie.first_air_date)
+                            ?.toString()
+                            .slice(0, 4) ?? "Unknown"
+                        }
+                        poster_url={getImage(movie.poster_path ?? "", "w200")}
+                      />
+                    </Link>
+                  ))}
+                </div>
+                <ScrollBar orientation="horizontal" />
+              </ScrollArea>
+            </div>
+            )}
 
             {/* Padding */}
             <div className="h-20"></div>

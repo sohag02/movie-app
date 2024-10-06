@@ -76,6 +76,19 @@ export const getProviders = async (
   return data.IN?.flatrate ?? [];
 };
 
-export const getImage = (path: string, size = "w500"): string => {
+export const getSimilarMovies = async (movie_id: number): Promise<SearchResponse> => {
+  const res = await fetch(buildURL(`/movie/${movie_id}/similar`));
+  const data = (await res.json()) as SearchResponse;
+  return data;
+};
+
+export const getSimilarSeries = async (series_id: number): Promise<SearchResponse> => {
+  const res = await fetch(buildURL(`/tv/${series_id}/similar`));
+  const data = (await res.json()) as SearchResponse;
+  return data;
+};
+
+export const getImage = (path: string, size = "w500"): string | null => {
+  if (path === "") return null;
   return `https://image.tmdb.org/t/p/${size}${path}`; // example https://image.tmdb.org/t/p/w500/r6q3u0x0q0u7p0p7s0s7t0t7.jpg
 };
