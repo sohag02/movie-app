@@ -13,7 +13,7 @@ export const CastCard = ({ cast }: CastCardProps) => {
     <div className="w-32 flex flex-col items-center justify-center">
       {cast.profile_path ? (
         <Image
-          src={getImage(cast.profile_path, "w200")}
+          src={getImage(cast.profile_path, "w200") ?? '/placeholder.png'}
           alt={cast.name}
           width={128}
           height={128}
