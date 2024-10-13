@@ -21,7 +21,7 @@ export const Navbar = () => {
       <Link href="/">
         <div className="flex flex-row items-center">
           <CameraIcon />
-          <h1 className="px-2 text-2xl font-semibold">Movies</h1>
+          <h1 className="px-2 text-2xl font-semibold">Watch Buddy</h1>
         </div>
       </Link>
       <div className="flex flex-row items-center justify-between">

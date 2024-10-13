@@ -14,7 +14,7 @@ import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Movie Watchlist",
+  title: "Watch Buddy",
   description: "A movie watchlist app",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
