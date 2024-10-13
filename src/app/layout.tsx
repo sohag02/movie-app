@@ -5,6 +5,8 @@ import { dark } from '@clerk/themes'
 
 import { WatchlistProvider } from "@/components/WatchlistProvider";
 
+import NextTopLoader from 'nextjs-toploader';
+
 import { Navbar } from "@/components/navbar";
 import BottomNavbar from "@/components/bottomNavbar";
 
@@ -30,6 +32,7 @@ export default function RootLayout({
       <html lang="en" className={`${GeistSans.variable}`}>
         <WatchlistProvider>
           <body className="dark mb-24 md:mb-0 pb-20 md:pb-0">
+            <NextTopLoader />
             <Navbar />
             {children}
           <BottomNavbar />
