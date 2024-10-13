@@ -242,14 +242,14 @@ export interface ProductionCountry {
 }
 
 export interface Season {
-    air_date?:      Date;
-    episode_count?: number;
-    id?:            number;
-    name?:          string;
-    overview?:      string;
-    poster_path?:   string;
-    season_number?: number;
-    vote_average?:  number;
+    air_date:      Date;
+    episode_count: number;
+    id:            number;
+    name:          string;
+    overview:      string;
+    poster_path:   string;
+    season_number: number;
+    vote_average:  number;
 }
 
 export interface SpokenLanguage {
@@ -278,4 +278,22 @@ export interface Cast {
     order?:               number;
     department?:          string;
     job?:                 string;
+}
+
+
+
+export interface Episode {
+    air_date:        Date;
+    episode_number:  number;
+    episode_type:    string;
+    id:              number;
+    name:            string;
+    overview:        string;
+    production_code: string;
+    runtime:         number;
+    season_number:   number;
+    show_id:         number;
+    still_path:      string;
+    vote_average:    number;
+    vote_count:      number;
 }

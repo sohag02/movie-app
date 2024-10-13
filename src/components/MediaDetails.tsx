@@ -11,6 +11,7 @@ import { CastCard } from "@/components/CastCard";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { type Media } from "@/lib/interfaces";
 import { MovieCard } from "@/components/movieCard";
+import SeasonView from "./seasonView";
 
 interface MediaDetailsProps {
   media: MediaDetails;
@@ -28,7 +29,7 @@ const MediaDetails: React.FC<MediaDetailsProps> = ({
       {media ? (
         <div className="relative">
           {/* Background image */}
-          <div className="relative h-full w-full px-2">
+          <div className="relative h-full w-full">
             <Image
               src={getImage(media.backdrop_path ?? "", "original") ?? "/background.jpg"}
               alt={media.title ?? media.name ?? ""}
@@ -188,6 +189,14 @@ const MediaDetails: React.FC<MediaDetailsProps> = ({
               )}
 
             </div>
+
+            {/* Seasons and Episodes For TV */}
+            {media.seasons && (
+              <div className="mx-4 pb-4">
+                <p className="text-xl font-bold text-white pb-2">Seasons</p>
+                  <SeasonView media={media} />
+              </div>
+            )}
 
             {/* Similar Content */}
             {similar.length > 0 && (
