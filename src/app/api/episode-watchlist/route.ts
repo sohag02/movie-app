@@ -51,8 +51,9 @@ export async function DELETE(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const series_id = searchParams.get("series_id");
   const episode_number = searchParams.get("episode_number");
+  const season_number = searchParams.get("season_number");
 
-  if (!series_id || !episode_number) {
+  if (!series_id || !episode_number || !season_number) {
     return NextResponse.json({
       success: false,
       message: "No series ID or episode number provided",
@@ -75,6 +76,7 @@ export async function DELETE(request: NextRequest) {
         eq(EpisodeWatchlist.user_id, userId),
         eq(EpisodeWatchlist.series_id, parseInt(series_id)),
         eq(EpisodeWatchlist.episode_number, parseInt(episode_number)),
+        eq(EpisodeWatchlist.season_number, parseInt(season_number)),
       ),
     );
 

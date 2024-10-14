@@ -62,21 +62,46 @@ const SeasonView: React.FC<SeasonViewProps> = ({ media }) => {
 
   const handleClick = async (episode: Episode) => {
     setLoadingEpisode(episode.episode_number); // Set loading state
-    await fetch(
-      `/api/episode-watchlist?series_id=${media.id}&episode_number=${episode.episode_number}&season_number=${episode.season_number}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+    if (
+      watchlist.find(
+        (watchlistEpisode) =>
+          watchlistEpisode.episode_number === episode.episode_number &&
+          watchlistEpisode.season_number === episode.season_number,
+      )
+    ) {
+      await fetch(
+        `/api/episode-watchlist?series_id=${media.id}&episode_number=${episode.episode_number}&season_number=${episode.season_number}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
         },
-      },
-    );
-    const fetchWatchlist = async () => {
-      const res = await fetch(`/api/episode-watchlist?series_id=${media.id}`);
-      const data = (await res.json()) as WatchlistEpisodeResponse;
-      setWatchlist(data.watchlist);
-    };
-    fetchWatchlist().catch(console.error);
+      );
+      setWatchlist(
+        watchlist.filter(
+          (watchlistEpisode) =>
+            watchlistEpisode.episode_number !== episode.episode_number ||
+            watchlistEpisode.season_number !== episode.season_number,
+        ),
+      );
+    } else {
+      await fetch(
+        `/api/episode-watchlist?series_id=${media.id}&episode_number=${episode.episode_number}&season_number=${episode.season_number}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+      const fetchWatchlist = async () => {
+        const res = await fetch(`/api/episode-watchlist?series_id=${media.id}`);
+        const data = (await res.json()) as WatchlistEpisodeResponse;
+        setWatchlist(data.watchlist);
+      };
+      fetchWatchlist().catch(console.error);
+    }
     setLoadingEpisode(null); // Reset loading state
   };
 
