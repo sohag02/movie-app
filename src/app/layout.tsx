@@ -32,7 +32,9 @@ export default function RootLayout({
       <html lang="en" className={`${GeistSans.variable}`}>
         <WatchlistProvider>
           <body className="dark mb-24 md:mb-0 pb-20 md:pb-0">
-            <NextTopLoader />
+            <NextTopLoader 
+              showSpinner={false} 
+            />
             <Navbar />
             {children}
           <BottomNavbar />
