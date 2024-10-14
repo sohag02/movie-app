@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.watch_budy.twa",
+      "sha256_cert_fingerprints": [
+        "66:23:F7:8E:DF:3E:1E:B7:B4:1A:C8:C5:DF:37:2A:A4:9A:42:AC:27:B5:B2:37:DE:55:4B:15:2F:90:0B:75:15"
+      ]
+    }
+  }
+]
