@@ -252,6 +252,10 @@ export interface Season {
     vote_average:  number;
 }
 
+export interface SeasonResponse extends Season {
+    episodes: Episode[];
+  }
+
 export interface SpokenLanguage {
     english_name?: string;
     iso_639_1?:    string;
@@ -280,8 +284,6 @@ export interface Cast {
     job?:                 string;
 }
 
-
-
 export interface Episode {
     air_date:        Date;
     episode_number:  number;
@@ -296,4 +298,17 @@ export interface Episode {
     still_path:      string;
     vote_average:    number;
     vote_count:      number;
+}
+
+export interface WatchlistEpisodeResponse {
+    watchlist: WatchlistEpisode[];
+}
+
+export interface WatchlistEpisode {
+    id:             number;
+    series_id:      number;
+    episode_number: number;
+    season_number:  number;
+    user_id:        string;
+    added_at:       Date;
 }

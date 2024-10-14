@@ -1,5 +1,5 @@
 
-import { type SeriesDetails, type MovieDetails, type SearchResponse, type Season, type Episode } from "./interfaces";
+import { type SeriesDetails, type MovieDetails, type SearchResponse, type SeasonResponse } from "./interfaces";
 
 const API_KEY = process.env.TMDB_API_KEY;
 const BASE_URL = `https://api.themoviedb.org/3`;
@@ -89,14 +89,10 @@ export const getSimilarSeries = async (series_id: number): Promise<SearchRespons
   return data;
 };
 
-interface SeasonResponse extends Season {
-  episodes: Episode[];
-}
-
-export const getEpisodes = async (series_id: number, season_number: number): Promise<Episode[]> => {
+export const getEpisodes = async (series_id: number, season_number: number): Promise<SeasonResponse> => {
   const res = await fetch(buildURL(`/tv/${series_id}/season/${season_number}`));
   const data = (await res.json()) as SeasonResponse;
-  return data.episodes;
+  return data;
 };
 
 export const getImage = (path: string, size = "w500"): string | null => {
