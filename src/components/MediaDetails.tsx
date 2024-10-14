@@ -200,10 +200,9 @@ const MediaDetails: React.FC<MediaDetailsProps> = ({
 
             {/* Similar Content */}
             {similar.length > 0 && (
-            <div className="pb-4">
+            <div className="pb-4 ">
               <p className="mx-4 text-xl font-bold text-white">Similar</p>
-              <ScrollArea className="whitespace-nowrap h-96">
-                <div className="flex w-max space-x-2 py-5 px-4">
+                <div className="flex space-x-2 py-5 px-4 overflow-x-auto">
                   {similar.map((movie) => (
                     <Link
                       href={
@@ -212,7 +211,7 @@ const MediaDetails: React.FC<MediaDetailsProps> = ({
                           : `/movie/${movie.id}`
                       }
                       key={movie.id}
-                      className="h-64 md:h-72 w-48"
+                      className="w-1/3 flex-shrink-0 md:w-1/6"
                     >
                       <MovieCard
                         name={movie.title ?? movie.name ?? "Unknown"}
@@ -226,8 +225,6 @@ const MediaDetails: React.FC<MediaDetailsProps> = ({
                     </Link>
                   ))}
                 </div>
-                <ScrollBar orientation="horizontal" />
-              </ScrollArea>
             </div>
             )}
 
