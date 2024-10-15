@@ -4,7 +4,7 @@ import { type SeriesDetails, type MovieDetails, type SearchResponse, type Season
 const API_KEY = process.env.TMDB_API_KEY;
 const BASE_URL = `https://api.themoviedb.org/3`;
 
-
+// https://api.themoviedb.org/3/movie/1118224/similar?language=hi&api_key=f18bd768e5c53a543c269bf86d014942
 const buildURL = (path: string): string => {
   if (path.includes("?")) {
     return `${BASE_URL}${path}&api_key=${API_KEY}`;
@@ -78,13 +78,13 @@ export const getProviders = async (
 };
 
 export const getSimilarMovies = async (movie_id: number): Promise<SearchResponse> => {
-  const res = await fetch(buildURL(`/movie/${movie_id}/similar`));
+  const res = await fetch(buildURL(`/movie/${movie_id}/recommendations`));
   const data = (await res.json()) as SearchResponse;
   return data;
 };
 
 export const getSimilarSeries = async (series_id: number): Promise<SearchResponse> => {
-  const res = await fetch(buildURL(`/tv/${series_id}/similar`));
+  const res = await fetch(buildURL(`/tv/${series_id}/recommendations`));
   const data = (await res.json()) as SearchResponse;
   return data;
 };
