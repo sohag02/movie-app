@@ -18,6 +18,7 @@ const config = {
         pathname: "/t/p/**",
       },
     ],
+    unoptimized: true,
   },
   typescript: {
     ignoreBuildErrors: true,
