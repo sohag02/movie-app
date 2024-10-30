@@ -90,10 +90,10 @@ const MediaDetails: React.FC<MediaDetailsProps> = ({
                         alt={"IMDB logo"}
                         width={50}
                         height={50}
-                        className="mr-2 h-auto w-auto"
+                        className="mr-2 mt-1"
                       />{" "}
                       {Math.round(media.vote_average ?? 0)}/10
-                      <ExternalLink className="ml-2 h-5 w-5" />
+                      <ExternalLink className="ml-2 h-5 w-5 mt-1" />
                     </p>
                   </Link>
                 )}
