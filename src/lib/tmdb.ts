@@ -30,7 +30,7 @@ export const getMovie = async (id: number): Promise<MovieDetails> => {
 };
 
 export const getSeries = async (id: number): Promise<SeriesDetails> => {
-  const res = await fetch(buildURL(`/tv/${id}?append_to_response=watch/providers,credits`));
+  const res = await fetch(buildURL(`/tv/${id}?append_to_response=watch/providers,credits,external_ids`));
   const data = (await res.json()) as SeriesDetails;
   return data;
 };

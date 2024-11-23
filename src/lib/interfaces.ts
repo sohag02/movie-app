@@ -197,6 +197,9 @@ export interface SeriesDetails {
         };
     };
     "credits": Credits;
+    "external_ids": {
+        imdb_id: string;
+    }
 }
 
 export interface CreatedBy {

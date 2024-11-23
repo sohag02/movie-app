@@ -82,8 +82,11 @@ const MediaDetails: React.FC<MediaDetailsProps> = ({
                 />
 
                 {/* IMDB button */}
-                {media.imdb_id && (
-                  <Link href={`https://www.imdb.com/title/${media.imdb_id}`}>
+                {(media.imdb_id ?? media.external_ids?.imdb_id) && (
+                  <Link
+                    href={`https://www.imdb.com/title/${media.imdb_id ?? media.external_ids?.imdb_id}`}
+                    target="_blank"
+                  >
                     <p className="mb-2 flex text-xl">
                       <Image
                         src={"/IMDB_Logo.png"}
@@ -92,8 +95,8 @@ const MediaDetails: React.FC<MediaDetailsProps> = ({
                         height={50}
                         className="mr-2 mt-1"
                       />{" "}
-                      {Math.round(media.vote_average ?? 0)}/10
-                      <ExternalLink className="ml-2 h-5 w-5 mt-1" />
+                      {Math.round((media.vote_average ?? 0) * 10) / 10}/10
+                      <ExternalLink className="ml-2 mt-1 h-5 w-5" />
                     </p>
                   </Link>
                 )}
