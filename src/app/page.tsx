@@ -1,103 +1,126 @@
 "use client";
 import { MovieCard } from "@/components/movieCard";
 import { getImage } from "@/lib/tmdb";
-import { type MovieDetails, type MediaDetails } from "@/lib/interfaces";
+import { type MediaDetails } from "@/lib/interfaces";
 import { useWatchlist } from "@/components/WatchlistProvider";
 import Link from "next/link";
-import { useState, useEffect, useRef, Suspense } from "react";
+import { useEffect, useRef, Suspense, useMemo, useCallback } from "react";
 import { MovieCardSkeleton } from "@/components/movieCard";
 import React from "react";
 import { Filters } from "@/components/filters";
+import useSWRInfinite from 'swr/infinite';
+
+// Fetch function for SWR
+const fetcher = async (url: string) => {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Failed to fetch data');
+  return res.json();
+};
 
 const MovieList = () => {
   const { filteredWatchlist } = useWatchlist();
-  const [movies, setMovies] = useState<MediaDetails[]>([]);
-  const [page, setPage] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const observer = useRef<IntersectionObserver | null>(null);
-  const movieCache = useRef<Map<number, MediaDetails>>(new Map());
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const fetchMovies = async () => {
-      setLoading(true);
-      const enhancedMovies = await Promise.all(
-        filteredWatchlist
-          .slice((page - 1) * 10, page * 10)
-          .map(async (movie) => {
-            if (movieCache.current.has(movie.movie_id)) {
-              return movieCache.current.get(movie.movie_id)!;
-            } else {
-              const res = await fetch(
-                `/api/${movie.media_type}?id=${movie.movie_id}`,
-              );
-              const fetchedMovie = (await res.json()) as MovieDetails;
-              movieCache.current.set(movie.movie_id, fetchedMovie);
-              return fetchedMovie;
-            }
-          }),
+  // Define the key generator for SWR Infinite
+  const getKey = (pageIndex: number, previousPageData: MediaDetails[] | null) => {
+    if (previousPageData && !previousPageData.length) return null; // reached the end
+    
+    const start = pageIndex * 10;
+    const end = start + 10;
+    
+    if (start >= filteredWatchlist.length) return null;
+    
+    // Return the IDs and media types for this page
+    return filteredWatchlist.slice(start, end).map(item => 
+      `/api/${item.media_type}?id=${item.movie_id}`
+    );
+  };
+
+  // Use SWR Infinite for pagination
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const { data, error, size, setSize, isValidating } = useSWRInfinite(
+    getKey,
+    async (urls) => {
+      // Fetch all movies for this page in parallel
+      return Promise.all(
+        urls.map(url => fetcher(url))
       );
-      setMovies((prevMovies) => [...prevMovies, ...enhancedMovies]);
-      setLoading(false);
-    };
+    },
+    {
+      revalidateOnFocus: false,
+      revalidateIfStale: false,
+      persistSize: true,
+      dedupingInterval: 60000,
+      keepPreviousData: true,
+      revalidateOnMount: false,
+    }
+  );
 
-    fetchMovies().catch((err) => console.error(err));
-  }, [filteredWatchlist, page]);
+  // Flatten the data from all pages
+  const movies = useMemo(() => {
+    return data ? data.flat() as MediaDetails[] : [];
+  }, [data]);
 
+  // Reset when filteredWatchlist changes
   useEffect(() => {
-    // Reset the page to 1 and clear the movies whenever the filteredWatchlist changes
-    setPage(1);
-    setMovies([]);
-  }, [filteredWatchlist]);
+    void setSize(1);
+  }, [filteredWatchlist, setSize]);
 
+  // Intersection Observer for infinite loading
   useEffect(() => {
-    if (observer.current) observer.current.disconnect();
-
+    if (!loadMoreRef.current) return;
+    
     const callback = (entries: IntersectionObserverEntry[]) => {
-      if (entries[0]?.isIntersecting && !loading) {
-        setPage((prevPage) => prevPage + 1);
+      if (entries[0]?.isIntersecting && !isValidating && filteredWatchlist.length > size * 10) {
+        void setSize(size + 1);
       }
     };
 
-    observer.current = new IntersectionObserver(callback);
-    if (observer.current && document.querySelector("#load-more")) {
-      observer.current.observe(document.querySelector("#load-more")!);
-    }
+    const options = {
+      rootMargin: '200px', // Load more before user reaches the end
+    };
 
-    return () => observer.current?.disconnect();
-  }, [loading]);
+    const currentObserver = new IntersectionObserver(callback, options);
+    currentObserver.observe(loadMoreRef.current);
+
+    return () => currentObserver.disconnect();
+  }, [size, setSize, isValidating, filteredWatchlist.length]);
+
+  // Memoize the movie card rendering
+  const renderMovieCards = useCallback(() => {
+    return movies.map((movie, index) => (
+      <Link
+        href={movie.first_air_date ? `/tv/${movie.id}` : `/movie/${movie.id}`}
+        key={`${movie.id}-${index}`}
+        className="inline-block h-auto w-auto"
+      >
+        <MovieCard
+          name={movie.title ? movie.title : (movie.name ?? "Unknown")}
+          release={
+            movie.release_date
+              ? movie.release_date.toString().slice(0, 4)
+              : movie.first_air_date
+                ? movie.first_air_date.toString().slice(0, 4)
+                : "Unknown"
+          }
+          poster_url={getImage(movie.poster_path ?? "", "w200")}
+        />
+      </Link>
+    ));
+  }, [movies]);
 
   return (
     <>
       <div className="flex flex-col gap-2 sm:mx-5 md:flex-row">
         <Filters />
         <div className="mx-1 grid grid-cols-3 gap-1 md:grid-cols-4 lg:grid-cols-5">
-          {movies.map((movie, index) => (
-            <Link
-              href={
-                movie.first_air_date ? `/tv/${movie.id}` : `/movie/${movie.id}`
-              }
-              key={index}
-              className="inline-block h-auto w-auto"
-            >
-              <MovieCard
-                key={movie.id}
-                name={movie.title ? movie.title : (movie.name ?? "Unknown")}
-                release={
-                  movie.release_date
-                    ? movie.release_date.toString().slice(0, 4)
-                    : movie.first_air_date
-                      ? movie.first_air_date.toString().slice(0, 4)
-                      : "Unknown"
-                }
-                poster_url={getImage(movie.poster_path ?? "", "w200")}
-              />
-            </Link>
-          ))}
-          {loading &&
-            [...Array(10).keys()].map((_, i) => <MovieCardSkeleton key={i} />)}
+          {renderMovieCards()}
+          {isValidating &&
+            [...Array(10).keys()].map((_, i) => <MovieCardSkeleton key={`skeleton-${i}`} />)}
         </div>
       </div>
-      <div id="load-more" className="h-10"></div>
+      {error && <div className="text-red-500 text-center my-4">Error loading data. Please try again.</div>}
+      <div ref={loadMoreRef} id="load-more" className="h-10"></div>
     </>
   );
 };
