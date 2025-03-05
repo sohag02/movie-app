@@ -2,7 +2,7 @@ import React from "react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, ArrowLeft } from "lucide-react";
 import WatchlistButton from "@/components/WatchlistButton";
 import { MediaType, type Provider, type MediaDetails } from "@/lib/interfaces";
 import { getImage } from "@/lib/tmdb";
@@ -42,6 +42,16 @@ const MediaDetails: React.FC<MediaDetailsProps> = ({
           </div>
 
           <div className="absolute inset-0 bg-black bg-opacity-50">
+            {/* Back button */}
+            <div className="px-4 pt-4">
+              <Link href="/">
+                <button className="flex items-center text-white hover:text-gray-300 transition-colors">
+                  <ArrowLeft className="mr-1 h-5 w-5" />
+                  <span>Back to Home</span>
+                </button>
+              </Link>
+            </div>
+            
             {/* Media details */}
             <div className="flex flex-col items-start justify-items-start gap-5 px-4 py-5 sm:flex-row">
               <Image

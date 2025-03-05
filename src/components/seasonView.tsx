@@ -140,7 +140,7 @@ const SeasonView: React.FC<SeasonViewProps> = ({ media }) => {
           episodes.map((episode) => (
             <div
               key={episode.episode_number}
-              className="flex flex-col gap-2 md:h-20 md:rounded-sm md:bg-slate-300 md:p-2"
+              className="flex flex-col gap-2 md:h-20 md:rounded-sm md:bg-secondary md:p-2"
             >
               <div className="flex flex-row items-center justify-between">
                 <div>
