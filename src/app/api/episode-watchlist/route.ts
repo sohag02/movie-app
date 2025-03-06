@@ -112,7 +112,7 @@ export async function GET(request: NextRequest) {
     orderBy: desc(EpisodeWatchlist.added_at),
   });
 
-  return NextResponse.json({
+  return NextResponse.json(
     watchlist,
-  });
+  );
 }

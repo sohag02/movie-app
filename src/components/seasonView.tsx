@@ -1,14 +1,11 @@
 "use client";
-import {
-  type MediaDetails,
-  type WatchlistEpisode,
-  type WatchlistEpisodeResponse,
-} from "@/lib/interfaces";
+import { type MediaDetails, type WatchlistEpisode } from "@/lib/interfaces";
 import { useState, useEffect } from "react";
 import { type Episode, type SeasonResponse } from "@/lib/interfaces";
 import { Button } from "@/components/ui/button";
-import { Check, Loader } from "lucide-react";
+import { Check } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import useSWR from "swr";
 
 import {
   Select,
@@ -24,14 +21,17 @@ interface SeasonViewProps {
   media: MediaDetails;
 }
 
+const fetcher = (url: string) => fetch(url).then((r) => r.json());
+
 const SeasonView: React.FC<SeasonViewProps> = ({ media }) => {
   const [season, setSeason] = useState<number>(1);
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const [watchlist, setWatchlist] = useState<WatchlistEpisode[]>([]);
-
-  const [loadingEpisode, setLoadingEpisode] = useState<number | null>(null); // Add loading state for episodes
+  const { data = [], mutate } = useSWR<WatchlistEpisode[]>(
+    `/api/episode-watchlist?series_id=${media.id}`,
+    fetcher,
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,58 +51,79 @@ const SeasonView: React.FC<SeasonViewProps> = ({ media }) => {
     void fetchData();
   }, [season, media.id]);
 
-  useEffect(() => {
-    const fetchWatchlist = async () => {
-      const res = await fetch(`/api/episode-watchlist?series_id=${media.id}`);
-      const data = (await res.json()) as WatchlistEpisodeResponse;
-      setWatchlist(data.watchlist);
-    };
-    fetchWatchlist().catch(console.error);
-  }, [season, media.id]);
-
-  const handleClick = async (episode: Episode) => {
-    setLoadingEpisode(episode.episode_number); // Set loading state
-    if (
-      watchlist.find(
-        (watchlistEpisode) =>
-          watchlistEpisode.episode_number === episode.episode_number &&
-          watchlistEpisode.season_number === episode.season_number,
-      )
-    ) {
-      await fetch(
-        `/api/episode-watchlist?series_id=${media.id}&episode_number=${episode.episode_number}&season_number=${episode.season_number}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        },
-      );
-      setWatchlist(
-        watchlist.filter(
-          (watchlistEpisode) =>
-            watchlistEpisode.episode_number !== episode.episode_number ||
-            watchlistEpisode.season_number !== episode.season_number,
-        ),
+  const toggleData = (episode: WatchlistEpisode, isWatched: boolean) => {
+    if (isWatched) {
+      return data.filter(
+        (item) =>
+          item.episode_number !== episode.episode_number ||
+          item.season_number !== episode.season_number,
       );
     } else {
-      await fetch(
-        `/api/episode-watchlist?series_id=${media.id}&episode_number=${episode.episode_number}&season_number=${episode.season_number}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        },
-      );
-      const fetchWatchlist = async () => {
-        const res = await fetch(`/api/episode-watchlist?series_id=${media.id}`);
-        const data = (await res.json()) as WatchlistEpisodeResponse;
-        setWatchlist(data.watchlist);
-      };
-      fetchWatchlist().catch(console.error);
+      return [...data, episode];
     }
-    setLoadingEpisode(null); // Reset loading state
+  };
+
+  const addToWatchlist = async (episode: WatchlistEpisode) => {
+    console.log("adding");
+    await fetch(
+      `/api/episode-watchlist?series_id=${media.id}&episode_number=${episode.episode_number}&season_number=${episode.season_number}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    );
+    return [...data, episode];
+  };
+
+  const removeFromWatchlist = async (episode: WatchlistEpisode) => {
+    console.log("removing");
+    await fetch(
+      `/api/episode-watchlist?series_id=${media.id}&episode_number=${episode.episode_number}&season_number=${episode.season_number}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    );
+    return data.filter(
+      (item) =>
+        item.episode_number !== episode.episode_number ||
+        item.season_number !== episode.season_number,
+    );
+  };
+
+  const handleClick = async (episode: Episode) => {
+    // Get current watched status
+    const isWatched = data.some(
+      (item) =>
+        item.episode_number === episode.episode_number &&
+        item.season_number === episode.season_number,
+    );
+
+    const ep: WatchlistEpisode = {
+      episode_number: episode.episode_number,
+      season_number: episode.season_number,
+      series_id: media.id!,
+      user_id: "1",
+      id: 1,
+      added_at: new Date(),
+    };
+
+    const OptimisticData = toggleData(ep, isWatched);
+
+    const toggleResponse = () => {
+      return isWatched ? removeFromWatchlist(ep) : addToWatchlist(ep);
+    };
+
+    await mutate(toggleResponse(), {
+      optimisticData: OptimisticData,
+      rollbackOnError: true,
+      populateCache: false,
+      revalidate: false,
+    });
   };
 
   return (
@@ -151,15 +172,18 @@ const SeasonView: React.FC<SeasonViewProps> = ({ media }) => {
                 </div>
                 <div>
                   <Button
-                    className={`h-8 w-8 rounded-full ${loadingEpisode === episode.episode_number ? "bg-blue-500" : watchlist.find((watchlistEpisode) => watchlistEpisode.episode_number === episode.episode_number && watchlistEpisode.season_number === episode.season_number) ? "bg-blue-500" : "bg-gray-500"} px-2 py-1 text-white`}
+                    className={`h-8 w-8 rounded-full ${
+                      data.some(
+                        (item) =>
+                          item.episode_number === episode.episode_number &&
+                          item.season_number === episode.season_number,
+                      )
+                        ? "bg-blue-500"
+                        : "bg-gray-500"
+                    } px-2 py-1 text-white`}
                     onClick={() => handleClick(episode)}
                   >
-                    {loadingEpisode === episode.episode_number ? (
-                      <Loader className="animate-spin" />
-                    ) : (
-                      <Check />
-                    )}{" "}
-                    {/* Show spinner or check icon */}
+                    <Check />
                   </Button>
                 </div>
               </div>
