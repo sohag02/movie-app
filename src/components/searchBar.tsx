@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Image from "next/image";
-import { MediaType, type Movie, type SearchResponse, type Series, type Media } from "@/lib/interfaces";
+import { MediaType, type Movie, type SearchResponse, type Media } from "@/lib/interfaces";
 import { BookmarkCheck, Search, X } from "lucide-react";
 import { Bookmark } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -92,6 +92,7 @@ const SearchBar = () => {
                 onBlur={handleBlur}
                 className="w-full md:w-1/2 rounded-md border border-gray-300 px-4 py-2"
                 placeholder="Search for a movie..."
+                autoFocus
               />
               <button
                 onClick={toggleSearchBar}
@@ -101,7 +102,7 @@ const SearchBar = () => {
               </button>
             </div>
             {isFocused && results.length > 0 ? (
-              <div className="">
+              <div className="flex justify-center w-full">
                 <SearchResult />
               </div>
             ) : ('')}
@@ -110,10 +111,9 @@ const SearchBar = () => {
       </div>
     </div>
   );
-
   function SearchResult() {
     return (
-      <ul className="absolute z-10 mt-1 max-h-auto w-full md:w-1/2 overflow-y-auto rounded-md border ">
+      <ul className="absolute z-10 mt-1 max-h-auto w-full md:w-1/2 overflow-y-auto rounded-md border bg-background">
         {results.map((movie) => (
           <Card
             key={movie.id}
@@ -137,7 +137,7 @@ const SearchBar = () => {
                 <p className="font-semibold">{movie.title ?? movie.name}</p>
                 <p className="text-gray-500">
                   {new Date(
-                    movie.first_air_date ?? "2000-01-01",
+                    movie.first_air_date ?? movie.release_date!,
                   ).toLocaleDateString()}
                 </p>
                 <p className="text-gray-500">
