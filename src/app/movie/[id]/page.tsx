@@ -1,26 +1,17 @@
 import React from "react";
-import { getMovie } from "@/lib/tmdb";
-import MediaDetails from "@/components/MediaDetails";
-import { getSimilarMovies } from "@/lib/tmdb";
+import { Suspense } from "react";
+import MovieContent from "./content";
 
 export default async function MoviePage({
   params,
 }: {
   params: { id: string };
 }) {
-  const id = params.id;
-  const movie = await getMovie(parseInt(id));
-  const providers = movie["watch/providers"]?.results?.IN?.flatrate ?? [];
-
-  const similarMovies = await getSimilarMovies(parseInt(id));
+  const Loading = <p>Loading...</p>;
 
   return (
-    <div>
-      {movie ? (
-        <MediaDetails media={movie} providers={providers} similar={similarMovies.results!} />
-      ) : (
-        <p>Loading...</p>
-      )}
-    </div>
+    <Suspense fallback={Loading}>
+      <MovieContent id={parseInt(params.id)} />
+    </Suspense>
   );
 }

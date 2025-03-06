@@ -13,6 +13,9 @@ import BottomNavbar from "@/components/bottomNavbar";
 
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
+import Script from "next/script";
+import { ViewTransitions } from 'next-view-transitions'
+
 
 export const metadata: Metadata = {
   title: "Watch Buddy",
@@ -25,6 +28,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
+    <ViewTransitions>
     <ClerkProvider
       appearance={{
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -32,6 +36,12 @@ export default function RootLayout({
       }}
     >
       <html lang="en" className={`${GeistSans.variable}`}>
+        <Script
+          crossOrigin="anonymous"
+          src="//unpkg.com/react-scan/dist/auto.global.js"
+          id="1"
+        >
+        </Script>
         <WatchlistProvider>
           <Head>
             <link rel="icon" type="image/png" href="/favicon-48x48.png" sizes="48x48" />
@@ -52,5 +62,6 @@ export default function RootLayout({
         </WatchlistProvider>
       </html>
     </ClerkProvider>
+    </ViewTransitions>
   );
 }

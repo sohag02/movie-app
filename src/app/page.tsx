@@ -3,12 +3,13 @@ import { MovieCard } from "@/components/movieCard";
 import { getImage } from "@/lib/tmdb";
 import { type MediaDetails } from "@/lib/interfaces";
 import { useWatchlist } from "@/components/WatchlistProvider";
-import Link from "next/link";
+import { Link, useTransitionRouter  } from 'next-view-transitions'
 import { useEffect, useRef, Suspense, useMemo, useCallback } from "react";
 import { MovieCardSkeleton } from "@/components/movieCard";
 import React from "react";
 import { Filters } from "@/components/filters";
 import useSWRInfinite from 'swr/infinite';
+import { slideInOut } from "@/lib/animation";
 
 // Fetch function for SWR
 const fetcher = async (url: string) => {
@@ -20,6 +21,7 @@ const fetcher = async (url: string) => {
 const MovieList = () => {
   const { filteredWatchlist } = useWatchlist();
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  const router = useTransitionRouter();
 
   // Define the key generator for SWR Infinite
   const getKey = (pageIndex: number, previousPageData: MediaDetails[] | null) => {
@@ -89,10 +91,16 @@ const MovieList = () => {
   // Memoize the movie card rendering
   const renderMovieCards = useCallback(() => {
     return movies.map((movie, index) => (
-      <Link
+      <a
         href={movie.first_air_date ? `/tv/${movie.id}` : `/movie/${movie.id}`}
         key={`${movie.id}-${index}`}
         className="inline-block h-auto w-auto"
+        onClick={(e) => {
+          e.preventDefault()
+          router.push(movie.first_air_date ? `/tv/${movie.id}` : `/movie/${movie.id}`, {
+            onTransitionReady: slideInOut,
+          })
+        }}
       >
         <MovieCard
           name={movie.title ? movie.title : (movie.name ?? "Unknown")}
@@ -105,9 +113,9 @@ const MovieList = () => {
           }
           poster_url={getImage(movie.poster_path ?? "", "w200")}
         />
-      </Link>
+      </a>
     ));
-  }, [movies]);
+  }, [movies, router]);
 
   return (
     <>
