@@ -133,7 +133,7 @@ export async function GET() {
     orderBy: desc(Movies.added_at),
   });
 
-  return NextResponse.json({
+  return NextResponse.json(
     watchlist,
-  });
+  );
 }
