@@ -21,6 +21,8 @@ interface WatchlistContextType {
   isWatched: (movieId: number) => boolean;
   updateStatus: (movieId: number, status: MovieStatus) => Promise<void>;
   setMediaTypeFilter: (mediaType: MediaType | null) => void;
+  setWatchedFilter: (watched: boolean | null) => void;
+  watchedFilter: boolean | null;
 }
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -37,22 +39,30 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({
   const [filteredWatchlist, setFilteredWatchlist] = useState<WatchlistMedia[]>(
     [],
   );
-  const [mediaTypeFilter, setMediaTypeFilter] = useState<MediaType | null>(
-    null,
-  );
+  const [mediaTypeFilter, setMediaTypeFilter] = useState<MediaType | null>(null);
+  const [watchedFilter, setWatchedFilter] = useState<boolean | null>(null);
   const { userId } = useAuth();
 
-  // useeffect for filter
+  // useeffect for filters
   useEffect(() => {
+    let filtered = [...watchlist];
+    
+    // Apply media type filter
     if (mediaTypeFilter) {
-      const filtered = watchlist.filter(
-        (movie) => movie.media_type === mediaTypeFilter,
+      filtered = filtered.filter(
+        (movie) => movie.media_type === mediaTypeFilter
       );
-      setFilteredWatchlist(filtered);
-    } else {
-      setFilteredWatchlist(watchlist);
     }
-  }, [mediaTypeFilter, watchlist]);
+    
+    // Apply watched filter
+    if (watchedFilter !== null) {
+      filtered = filtered.filter(
+        (movie) => (movie.status === "watched") === watchedFilter
+      );
+    }
+    
+    setFilteredWatchlist(filtered);
+  }, [mediaTypeFilter, watchedFilter, watchlist]);
   // useEffect(() => {
   //   const fetchWatchlist = async () => {
   //     const res = await fetch(`/api/watchlist`);
@@ -193,6 +203,8 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({
         updateStatus,
         isWatched,
         setMediaTypeFilter,
+        setWatchedFilter,
+        watchedFilter,
       }}
     >
       {children}

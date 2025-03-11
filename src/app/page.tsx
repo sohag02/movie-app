@@ -119,7 +119,7 @@ const MovieList = () => {
 
   return (
     <>
-      <div className="flex flex-col gap-2 sm:mx-5 md:flex-row">
+      <div className="flex flex-col gap-2 max-w-5xl w-full mx-auto px-1 sm:px-5">
         <Filters />
         <div className="mx-1 grid grid-cols-3 gap-1 md:grid-cols-4 lg:grid-cols-5">
           {renderMovieCards()}
