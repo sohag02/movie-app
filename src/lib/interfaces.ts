@@ -93,7 +93,54 @@ export interface MovieDetails {
             };
         };
     };
-    "credits": Credits;
+    "credits":             Credits;
+    images:                Images;
+}
+
+export interface Images {
+    backdrops: Backdrop[];
+    logos:     Backdrop[];
+    posters:   Backdrop[];
+}
+
+export interface Backdrop {
+    aspect_ratio: number;
+    height:       number;
+    iso_639_1:    OriginalLanguage | null;
+    file_path:    string;
+    vote_average: number;
+    vote_count:   number;
+    width:        number;
+}
+
+export enum OriginalLanguage {
+    En = "en",
+}
+
+export interface Videos {
+    results: Result[];
+}
+
+export interface Result {
+    iso_639_1:    OriginalLanguage;
+    iso_3166_1:   string;
+    name:         string;
+    key:          string;
+    site:         string;
+    size:         number;
+    type:         Type;
+    official:     boolean;
+    published_at: Date;
+    id:           string;
+}
+
+export enum Type {
+    BehindTheScenes = "Behind the Scenes",
+    Bloopers = "Bloopers",
+    Clip = "Clip",
+    Featurette = "Featurette",
+    Teaser = "Teaser",
+    Trailer = "Trailer",
 }
 
 export interface Provider {
@@ -200,6 +247,8 @@ export interface SeriesDetails {
     "external_ids": {
         imdb_id: string;
     }
+    images:                Images;
+    videos:                Videos;
 }
 
 export interface CreatedBy {

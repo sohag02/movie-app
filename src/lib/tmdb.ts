@@ -24,15 +24,13 @@ export const searchMovie = async (query: string): Promise<SearchResponse> => {
 };
 
 export const getMovie = async (id: number): Promise<MovieDetails> => {
-  const res = await fetch(buildURL(`/movie/${id}?append_to_response=watch/providers,credits`));
-  const data = (await res.json()) as MovieDetails;
-  return data;
+  const res = await fetch(buildURL(`/movie/${id}?append_to_response=watch/providers,credits,videos,images&include_image_language=en,null`));
+  return (await res.json()) as MovieDetails;
 };
 
 export const getSeries = async (id: number): Promise<SeriesDetails> => {
-  const res = await fetch(buildURL(`/tv/${id}?append_to_response=watch/providers,credits,external_ids`));
-  const data = (await res.json()) as SeriesDetails;
-  return data;
+  const res = await fetch(buildURL(`/tv/${id}?append_to_response=watch/providers,credits,external_ids,videos,images&include_image_language=en,null`));
+  return (await res.json()) as SeriesDetails;
 };
 
 export const getPopularMovies = async (): Promise<SearchResponse> => {
