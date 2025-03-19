@@ -58,7 +58,7 @@ const MediaDetails: React.FC<MediaDetailsProps> = ({
             </div>
 
             {/* Media details */}
-            <div className="flex flex-col items-start justify-items-start gap-5 px-4 py-5 sm:flex-row">
+            <div className="flex flex-col items-start justify-items-start gap-5 px-4 py-5 sm:flex-row mx-auto">
               <Image
                 src={getImage(media.poster_path ?? "") ?? "/poster.jpg"}
                 alt={media.title ?? media.name ?? ""}
