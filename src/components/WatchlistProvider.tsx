@@ -13,7 +13,7 @@ type MovieStatus = "not watched" | "watched";
 
 interface WatchlistContextType {
   watchlist: WatchlistMedia[];
-  setWatchlist: (newWatchlist:WatchlistMedia[]) => Promise<void>;
+  setWatchlist: (newWatchlist: WatchlistMedia[]) => Promise<void>;
   filteredWatchlist: WatchlistMedia[];
   addToWatchlist: (movieID: number, mediaType: MediaType) => Promise<void>;
   removeFromWatchlist: (movieId: number) => Promise<void>;
@@ -22,7 +22,9 @@ interface WatchlistContextType {
   updateStatus: (movieId: number, status: MovieStatus) => Promise<void>;
   setMediaTypeFilter: (mediaType: MediaType | null) => void;
   setWatchedFilter: (watched: boolean | null) => void;
+  setGenreFilter: (genreId: number | null) => void;
   watchedFilter: boolean | null;
+  genreFilter: number | null;
 }
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -34,35 +36,49 @@ const WatchlistContext = createContext<WatchlistContextType | undefined>(
 export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { data: watchlist = [], mutate } = useSWR<WatchlistMedia[]>("/api/watchlist", fetcher);
-  console.log(watchlist)
+  const { data: watchlist = [], mutate } = useSWR<WatchlistMedia[]>(
+    "/api/watchlist",
+    fetcher,
+  );
   const [filteredWatchlist, setFilteredWatchlist] = useState<WatchlistMedia[]>(
     [],
   );
-  const [mediaTypeFilter, setMediaTypeFilter] = useState<MediaType | null>(null);
+  const [mediaTypeFilter, setMediaTypeFilter] = useState<MediaType | null>(
+    null,
+  );
   const [watchedFilter, setWatchedFilter] = useState<boolean | null>(null);
+  const [genreFilter, setGenreFilter] = useState<number | null>(null);
   const { userId } = useAuth();
 
   // useeffect for filters
   useEffect(() => {
     let filtered = [...watchlist];
-    
+
     // Apply media type filter
     if (mediaTypeFilter) {
       filtered = filtered.filter(
-        (movie) => movie.media_type === mediaTypeFilter
+        (movie) => movie.media_type === mediaTypeFilter,
       );
     }
-    
+
     // Apply watched filter
     if (watchedFilter !== null) {
       filtered = filtered.filter(
-        (movie) => (movie.status === "watched") === watchedFilter
+        (movie) => (movie.status === "watched") === watchedFilter,
       );
     }
-    
+
+    // Apply genre filter
+    if (genreFilter !== null) {
+      // filtered = filtered.filter((item) => {
+      //   const genres = item.genres || [];
+      //   return genres.includes(genreFilter);
+      // });
+      // TODO: add genre filter
+    }
+
     setFilteredWatchlist(filtered);
-  }, [mediaTypeFilter, watchedFilter, watchlist]);
+  }, [mediaTypeFilter, watchedFilter, genreFilter, watchlist]);
   // useEffect(() => {
   //   const fetchWatchlist = async () => {
   //     const res = await fetch(`/api/watchlist`);
@@ -83,14 +99,11 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({
       status: "active",
       added_at: new Date(),
     };
-    
+
     // Optimistically update the UI
-    await mutate(
-      async (currentWatchlist: WatchlistMedia[] = []) => {
-        return [newMovie, ...currentWatchlist];
-      },
-      false
-    );
+    await mutate(async (currentWatchlist: WatchlistMedia[] = []) => {
+      return [newMovie, ...currentWatchlist];
+    }, false);
     // Make the actual API request
     try {
       const res = await fetch(
@@ -103,7 +116,7 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({
         },
       );
       const data = (await res.json()) as WatchlistResponse;
-      
+
       if (!data.success) {
         console.error(data.message);
         // Revert the optimistic update if the API call fails
@@ -117,12 +130,9 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({
   };
   const removeFromWatchlist = async (movieId: number) => {
     // Optimistically update the UI
-    await mutate(
-      async (currentWatchlist: WatchlistMedia[] = []) => {
-        return currentWatchlist.filter((movie) => movie.movie_id !== movieId);
-      },
-      false
-    );
+    await mutate(async (currentWatchlist: WatchlistMedia[] = []) => {
+      return currentWatchlist.filter((movie) => movie.movie_id !== movieId);
+    }, false);
     // Make the actual API request
     try {
       const res = await fetch(`/api/watchlist?movie_id=${movieId}`, {
@@ -132,7 +142,7 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({
         },
       });
       const data = (await res.json()) as WatchlistResponse;
-      
+
       if (!data.success) {
         console.error(data.message);
         // Revert the optimistic update if the API call fails
@@ -149,17 +159,17 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({
   };
   const updateStatus = async (movieId: number, status: MovieStatus) => {
     // Optimistically update the UI
-    await mutate(
-      async (currentWatchlist: WatchlistMedia[] = []) => {
-        return currentWatchlist.map((movie) => {
-          if (movie.movie_id === movieId) {
-            return { ...movie, status: status === "watched" ? "watched" : "active" };
-          }
-          return movie;
-        });
-      },
-      false
-    );
+    await mutate(async (currentWatchlist: WatchlistMedia[] = []) => {
+      return currentWatchlist.map((movie) => {
+        if (movie.movie_id === movieId) {
+          return {
+            ...movie,
+            status: status === "watched" ? "watched" : "active",
+          };
+        }
+        return movie;
+      });
+    }, false);
     // Make the actual API request
     try {
       const res = await fetch(
@@ -172,7 +182,7 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({
         },
       );
       const data = (await res.json()) as WatchlistResponse;
-      
+
       if (!data.success) {
         console.error(data.message);
         // Revert the optimistic update if the API call fails
@@ -205,6 +215,8 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({
         setMediaTypeFilter,
         setWatchedFilter,
         watchedFilter,
+        setGenreFilter,
+        genreFilter,
       }}
     >
       {children}

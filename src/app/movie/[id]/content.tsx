@@ -8,10 +8,15 @@ export default async function MovieContent({ id }: { id: number }) {
   const similarMovies = await getSimilarMovies(id);
 
   return (
-    <MediaDetails 
-      media={movie} 
-      providers={providers} 
-      similar={similarMovies.results!} 
+    <MediaDetails
+      // media={{
+      //   ...movie,
+      //   external_ids: { imdb_id: movie.imdb_id! },
+      //   // videos: { results: [] },
+      // }}
+      media={movie}
+      providers={providers}
+      similar={similarMovies.results!}
     />
   );
 }

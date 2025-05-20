@@ -11,7 +11,7 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ListFilter, Eye } from "lucide-react";
+import { ListFilter, Eye, Film } from "lucide-react";
 import { MediaType } from "@/lib/interfaces";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import {
@@ -22,13 +22,30 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
+interface Genre {
+  id : number;
+  name : string;
+}
+
+const GENRES : Genre[] = [
+  { id: 28, name: "Action" },
+  { id: 12, name: "Adventure" },
+  { id: 35, name: "Comedy" },
+  { id: 18, name: "Drama" },
+  { id: 27, name: "Horror" },
+  { id: 878, name: "Sci-Fi" },
+  { id: 10749, name: "Romance" },
+  { id: 53, name: "Thriller" },
+];
+
 export const Filters = () => {
-  const { setMediaTypeFilter, setWatchedFilter } =
+  const { setMediaTypeFilter, setWatchedFilter, setGenreFilter } =
     useWatchlist();
   const [position, setPosition] = useState<MediaType | "all">("all");
   const [watchedStatus, setWatchedStatus] = useState<
     "all" | "watched" | "unwatched"
   >("all");
+  const [selectedGenre, setSelectedGenre] = useState<number | "all">("all");
   const isMobile = useMediaQuery("(max-width: 768px)");
 
   useEffect(() => {
@@ -48,6 +65,14 @@ export const Filters = () => {
       setWatchedFilter(false);
     }
   }, [watchedStatus, setWatchedFilter]);
+
+  useEffect(() => {
+    if (selectedGenre === "all") {
+      setGenreFilter(null);
+    } else {
+      setGenreFilter(selectedGenre);
+    }
+  }, [selectedGenre, setGenreFilter]);
 
   const renderFilterContent = () => (
     <div className="flex flex-col gap-4">
@@ -104,22 +129,47 @@ export const Filters = () => {
           </Button>
         </div>
       </div>
+
+      <div className="flex flex-col gap-2">
+        <h4 className="font-medium">Genre</h4>
+        <div className="flex flex-col gap-2">
+          <Button
+            variant={selectedGenre === "all" ? "default" : "outline"}
+            className="w-full justify-start"
+            onClick={() => setSelectedGenre("all")}
+          >
+            All Genres
+          </Button>
+          {GENRES.map((genre) => (
+            <Button
+              key={genre.id}
+              variant={selectedGenre === genre.id ? "default" : "outline"}
+              className="w-full justify-start"
+              onClick={() => setSelectedGenre(genre.id)}
+            >
+              {genre.name}
+            </Button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 
   return (
     <div className="mx-2 flex flex-wrap items-center gap-2 md:h-auto md:w-auto">
-
       {isMobile ? (
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="outline" className="flex items-center gap-1">
               <ListFilter className="h-4 w-4" />
               <span>Filters</span>
-              {(position !== "all" || watchedStatus !== "all") && (
+              {(position !== "all" ||
+                watchedStatus !== "all" ||
+                selectedGenre !== "all") && (
                 <Badge variant="secondary" className="ml-1 h-5 px-1">
                   {(position !== "all" ? 1 : 0) +
-                    (watchedStatus !== "all" ? 1 : 0)}
+                    (watchedStatus !== "all" ? 1 : 0) +
+                    (selectedGenre !== "all" ? 1 : 0)}
                 </Badge>
               )}
             </Button>
@@ -194,6 +244,35 @@ export const Filters = () => {
                 <DropdownMenuRadioItem value="unwatched">
                   Unwatched
                 </DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="flex items-center gap-1">
+                <Film className="h-4 w-4" />
+                <span>Genre</span>
+                {selectedGenre !== "all" && (
+                  <Badge variant="secondary" className="ml-1 h-5 px-1">
+                    {selectedGenre}
+                  </Badge>
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-48">
+              <DropdownMenuRadioGroup
+                value={selectedGenre.toString()}
+                onValueChange={(value) => setSelectedGenre(value as "all" | number)}
+              >
+                <DropdownMenuRadioItem value="all">
+                  All Genres
+                </DropdownMenuRadioItem>
+                {GENRES.map((genre) => (
+                  <DropdownMenuRadioItem key={genre.id} value={genre.id.toString()}>
+                    {genre.name}
+                  </DropdownMenuRadioItem>
+                ))}
               </DropdownMenuRadioGroup>
             </DropdownMenuContent>
           </DropdownMenu>

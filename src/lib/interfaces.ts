@@ -94,7 +94,11 @@ export interface MovieDetails {
         };
     };
     "credits":             Credits;
+    "external_ids": {
+        imdb_id: string;
+    }
     images:                Images;
+    videos:                Videos;
 }
 
 export interface Images {
